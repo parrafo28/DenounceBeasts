@@ -1,1 +1,1 @@
-# DenounceBeasts2025C2
+# DenounceBeasts
