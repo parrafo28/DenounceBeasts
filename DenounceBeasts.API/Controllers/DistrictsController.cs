@@ -1,4 +1,6 @@
-﻿using DenounceBeasts.API.Entities;
+﻿using DenounceBeasts.API.Data;
+using DenounceBeasts.API.DTOs;
+using DenounceBeasts.API.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
@@ -7,16 +9,18 @@ namespace DenounceBeasts.API.Controllers
     [Route("api/[controller]")]
     public class DistrictsController : ControllerBase
     {
-        List<District> districts = new List<District>
+        private readonly DataContext _context;
+
+        public DistrictsController(DataContext context)
         {
-            new District { Id = 1, Name = "Downtown", Code = "DT", MunicipalityId = 1 },
-            new District { Id = 2, Name = "Uptown", Code = "UT", MunicipalityId = 1 },
-            new District { Id = 3, Name = "Suburbia", Code = "SB", MunicipalityId = 2 }
-        };
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult GetDistricts()
         {
+            var districts = _context.Districts.ToList();
+
             return Ok(districts);
         }
 
@@ -25,56 +29,70 @@ namespace DenounceBeasts.API.Controllers
         public IActionResult GetDistrictById(int id)
         {
 
-            var district = districts.Where(p => p.Id == id).FirstOrDefault();
+            var district = _context.Districts.Where(p => p.Id == id).FirstOrDefault();
             return Ok(district);
         }
 
         [HttpPost]
-        public IActionResult CreateDistrict([FromBody] District district)
+        public IActionResult CreateDistrict([FromBody] CreateDistrictDto request)
         {
-            if (district == null)
+            if (request == null)
             {
                 return BadRequest("District cannot be null.");
             }
-            district.Id = districts.Count + 1; // Simple ID generation logic
-            districts.Add(district);
-            //return CreatedAtAction(nameof(GetDistrictById), new { id = district.Id }, district);
-            return Ok(districts);
+            var district = new District
+            {
+                IsActive = request.IsActive,
+                Name = request.Name,
+                Code = request.Code,
+                MunicipalityId = request.MunicipalityId, 
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+         
+            _context.Districts.Add(district);
+            _context.SaveChanges();
+            return Ok(district);
 
         }
+
         [HttpPut]
-        public IActionResult UpdateDistrict([FromBody] District district)
+        public IActionResult UpdateDistrict([FromBody] UpdateDistrictDto request)
         {
-            if (district == null || district.Id <= 0)
+            if (request == null || request.Id <= 0)
             {
                 return BadRequest("Invalid district data.");
             }
-            var existingDistrict = districts.FirstOrDefault(d => d.Id == district.Id);
+            var existingDistrict = _context.Districts.FirstOrDefault(d => d.Id == request.Id);
             if (existingDistrict == null)
             {
                 return NotFound("District not found.");
             }
-            existingDistrict.Name = district.Name;
-            existingDistrict.Code = district.Code;
-            existingDistrict.MunicipalityId = district.MunicipalityId;
-            existingDistrict.UpdatedAt = DateTime.UtcNow; // Assuming you want to update the timestamp
-           // return Ok(existingDistrict);
-            return Ok(districts);
+            existingDistrict.Name = request.Name;
+            existingDistrict.Code = request.Code;
+            existingDistrict.MunicipalityId = request.MunicipalityId;
+            existingDistrict.IsActive = request.IsActive;
+            existingDistrict.UpdatedAt = DateTime.UtcNow;
+            _context.Update(existingDistrict);
+            _context.SaveChanges();
+
+            return Ok(existingDistrict);
 
         }
+
         [HttpDelete]
         [Route("{id:int}")]
         public IActionResult DeleteDistrict(int id)
         {
-            var district = districts.FirstOrDefault(d => d.Id == id);
+            var district = _context.Districts.FirstOrDefault(d => d.Id == id);
             if (district == null)
             {
                 return NotFound("District not found.");
             }
-            districts.Remove(district);
-            // return NoContent(); // 204 No Content response
-            return Ok(districts);
-
+            _context.Districts.Remove(district);
+            _context.SaveChanges();
+            return NoContent(); // 204 No Content response
+            
 
         }
     }
