@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DenounceBeasts.API.Entities
@@ -11,13 +12,16 @@ namespace DenounceBeasts.API.Entities
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+       
+        [StringLength(50)]
         public string Code { get; set; }
 
         //[Column("NameOfSector")]
+        [StringLength(150)]
         public string Name { get; set; } = string.Empty;
 
-        public int MunicipaltyId { get; set; }
-        public virtual Municipalty Municipalty { get; set; }
+        public int MunicipalityId { get; set; }
+       public virtual Municipality Municipality { get; set; }
 
     }
 }
