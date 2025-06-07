@@ -25,6 +25,7 @@ namespace DenounceBeasts.API.Controllers
         {
             return Ok(_sectors);
         }
+
         // GET: api/Sectors/5
         [HttpGet("{id}")]
         public IActionResult GetSector(int id)
@@ -50,9 +51,10 @@ namespace DenounceBeasts.API.Controllers
             }
             return Ok(sector);
         }
-        // POST: api/Sectors\
+
+        // POST: api/Sectors
         [HttpPost]
-        public IActionResult CreateSector([FromBody] Sector sector)
+        public IActionResult CreateSector([FromBody] Sector sector  )
         {
             if (sector == null)
             {
@@ -67,6 +69,7 @@ namespace DenounceBeasts.API.Controllers
             return Ok(_sectors);
 
         }
+
         //[HttpPut]
         //public IActionResult UpdateSector([FromBody] Sector sector)
         //{
@@ -86,6 +89,7 @@ namespace DenounceBeasts.API.Controllers
         //    return Ok(_sectors);
         //}
         //// PUT: api/Sectors/5
+      
         [HttpPut("{id}")]
         public IActionResult UpdateSector(int id, [FromBody] Sector sector)
         {
@@ -104,6 +108,7 @@ namespace DenounceBeasts.API.Controllers
            // return Ok(existingSector);
             return Ok(_sectors);
         }
+
         // DELETE: api/Sectors/5
         [HttpDelete("{id}")]
         public IActionResult DeleteSector(int id)
