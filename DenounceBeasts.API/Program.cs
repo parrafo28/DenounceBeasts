@@ -1,13 +1,31 @@
-using DenounceBeasts.API.Data;
+using DenounceBeasts.Domain.Entities;
+using DenounceBeasts.Infrastructure.Data;
+using DenounceBeasts.Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json.Serialization; 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddDbContext<DataContext>(o =>
     o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllers();
+// add service in scoped lifetime this means that a new instance of the service will be created for each request
+//builder.Services.AddScoped<DistrictRepository>();
+builder.Services.AddScoped<MunicipaltyRepository>();
+builder.Services.AddScoped<GenericRepository<District>>();
+// add service in transient lifetime this means that a new instance of the service will be created every time it is requested
+//builder.Services.AddTransient<DistrictRepository>();
+// add service in singleton lifetime this means that a single instance of the service will be created and shared across the application
+//builder.Services.AddSingleton<DistrictRepository>();
+
+// Fixed: AddJsonOptions should be called on IMvcBuilder, not IServiceCollection
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

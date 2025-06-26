@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DenounceBeasts.API.Entities
+namespace DenounceBeasts.Domain.Entities
 {
     public class District
     {
