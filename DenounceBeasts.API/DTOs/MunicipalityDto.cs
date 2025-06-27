@@ -1,12 +1,12 @@
-﻿namespace DenounceBeasts.API.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DenounceBeasts.API.DTOs
 {
-    public class DistrictDto
+    public class MunicipalityDto 
     {
         public int Id { get; set; }
         public bool IsActive { get; set; } = true;
         public string Name { get; set; }
         public string Code { get; set; }
-        public int MunicipalityId { get; set; }
-        public string MunicipalityName { get; set; } = "Unknown"; 
     }
 }
