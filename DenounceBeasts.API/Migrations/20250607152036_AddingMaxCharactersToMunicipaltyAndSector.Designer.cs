@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DenounceBeasts.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250607152036_AddingMaxCharactersToMunicipaltyAndSector")]
-    partial class AddingMaxCharactersToMunicipaltyAndSector
+    [Migration("20250607152036_AddingMaxCharactersToMunicipalityAndSector")]
+    partial class AddingMaxCharactersToMunicipalityAndSector
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

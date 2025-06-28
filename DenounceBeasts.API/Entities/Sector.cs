@@ -9,10 +9,10 @@ namespace DenounceBeasts.API.Entities
     {
         //[Column("ID")]
         public int Id { get; set; }
-
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-       
+        public DateTime? UpdatedAt { get; set; }
+        public bool IsActive { get; set; } = true;
+
         [StringLength(50)]
         public string Code { get; set; }
 
@@ -22,6 +22,8 @@ namespace DenounceBeasts.API.Entities
 
         public int MunicipalityId { get; set; }
        public virtual Municipality Municipality { get; set; }
+        public virtual ICollection<Complaint> Complaints { get; set; } = new List<Complaint>();
+
 
     }
 }

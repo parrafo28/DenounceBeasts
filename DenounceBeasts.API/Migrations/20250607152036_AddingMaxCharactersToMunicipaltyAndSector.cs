@@ -5,7 +5,7 @@
 namespace DenounceBeasts.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddingMaxCharactersToMunicipaltyAndSector : Migration
+    public partial class AddingMaxCharactersToMunicipalityAndSector : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
