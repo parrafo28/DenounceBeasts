@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace DenounceBeasts.API.Entities
+namespace DenounceBeasts.Domain.Entities
 {
     //[Table("Sectors")] 
     public class Sector
@@ -21,7 +19,7 @@ namespace DenounceBeasts.API.Entities
         public string Name { get; set; } = string.Empty;
 
         public int MunicipalityId { get; set; }
-       public virtual Municipality Municipality { get; set; }
+        public virtual Municipality Municipality { get; set; }
         public virtual ICollection<Complaint> Complaints { get; set; } = new List<Complaint>();
 
 

@@ -1,4 +1,4 @@
-﻿namespace DenounceBeasts.API.Entities
+﻿namespace DenounceBeasts.Domain.Entities
 {
     public class ComplaintHistory
     {

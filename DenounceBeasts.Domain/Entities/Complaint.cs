@@ -1,6 +1,6 @@
 ﻿using System.Net.Mail;
 
-namespace DenounceBeasts.API.Entities
+namespace DenounceBeasts.Domain.Entities
 {
     public class Complaint
     {

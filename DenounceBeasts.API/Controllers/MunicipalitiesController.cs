@@ -1,7 +1,10 @@
-﻿using DenounceBeasts.API.Data;
+﻿
 using DenounceBeasts.API.DTOs;
-using DenounceBeasts.API.Entities;
+using DenounceBeasts.Domain.Entities;
+using DenounceBeasts.Infrastructure;
+using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DenounceBeasts.API.Controllers
 {
@@ -10,33 +13,52 @@ namespace DenounceBeasts.API.Controllers
     public class MunicipalitiesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly MunicipaltyRepository _municipaltyRepository;
+        private readonly SectorRepository _sectorRepository;
 
-        public MunicipalitiesController(ApplicationDbContext context)
+        public MunicipalitiesController(ApplicationDbContext context, MunicipaltyRepository municipaltyRepository, SectorRepository sectorRepository)
         {
             _context = context;
+            _municipaltyRepository = municipaltyRepository;
+            _sectorRepository = sectorRepository;
         }
 
         [HttpGet]
         public IActionResult GetMunicipalities()
         {
             var municipalities = _context.Municipalities.ToList();
+            var sectosrs = _context.Sectors.ToList();
 
             var municipalitiesResponse = new List<MunicipalityDto>();
-             
+
             municipalitiesResponse = municipalities.Select(s => new MunicipalityDto
             {
                 Id = s.Id,
                 Code = s.Code,
-                Name = s.Name
+                Name = s.Name,
+                Sector = sectosrs.Where(sector => sector.MunicipalityId == s.Id).Select(sector => new SectorDto
+                {
+                    Id = sector.Id,
+                    Code = sector.Code,
+                    Name = sector.Name,
+                    MunicipalityId = sector.MunicipalityId
+                }).ToList()
             }).ToList();
-             
+
+            //foreach (var municipality in municipalities)
+            //{
+            //    municipality.Sectors = sectosrs.Where(s => s.MunicipalityId == municipality.Id).ToList();
+            //}
+
             return Ok(municipalitiesResponse);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetMunicipality(int id)
+        public async Task<IActionResult> GetMunicipality(int id)
         {
-                    var municipality = _context.Municipalities.Where(s => s.Id == id).FirstOrDefault();
+            var municipality = await _context.Municipalities
+                .Where(s => s.Id == id).FirstOrDefaultAsync();
+
             if (municipality == null)
             {
                 return NotFound($"Municipality with ID {id} not found.");
@@ -46,34 +68,42 @@ namespace DenounceBeasts.API.Controllers
                 Id = municipality.Id,
                 Code = municipality.Code,
                 Name = municipality.Name,
-                MunicipalityId = municipality.MunicipalityId
             };
-            return Ok(municipalityResponse); 
+            return Ok(municipalityResponse);
         }
 
         [HttpPost]
-        public IActionResult CreateMunicipality([FromBody] CreateMunicipalityDto request)
+        public IActionResult CreateMunicipality([FromBody] MunicipalityDto request)
         {
+            //validations
             if (request == null)
             {
                 return BadRequest("Municipality cannot be null.");
             }
-        
+            if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Code))
+            {
+                return BadRequest("Municipality Name and Code cannot be empty.");
+            }
+
+            //creating resources
             var municipality = new Municipality
             {
                 Code = request.Code,
                 CreatedAt = DateTime.Now,
-                MunicipalityId = request.MunicipalityId,
                 Name = request.Name,
             };
             _context.Municipalities.Add(municipality);
+
+            //persisting changes to the database
             _context.SaveChanges();
+
+            //return the response
             return Ok(new { id = municipality.Id });
 
         }
 
-            [HttpPut("{id}")]
-        public IActionResult UpdateMunicipality(int id, [FromBody] UpdateMunicipalityDto request)
+        [HttpPut("{id}")]
+        public IActionResult UpdateMunicipality(int id, [FromBody] MunicipalityDto request)
         {
             if (request == null || request.Id != id)
             {
@@ -87,7 +117,6 @@ namespace DenounceBeasts.API.Controllers
             existingMunicipality.Name = request.Name;
             existingMunicipality.Code = request.Code;
             existingMunicipality.UpdatedAt = DateTime.Now;
-            existingMunicipality.MunicipalityId = request.MunicipalityId;
             _context.Municipalities.Update(existingMunicipality);
             _context.SaveChanges();
             return NoContent();

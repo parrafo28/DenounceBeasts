@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36121.58 d17.14
+VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.API", "DenounceBeasts.API\DenounceBeasts.API.csproj", "{B3F65EB1-E76A-44EF-9DB9-B18CA83A3027}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.Domain", "DenounceBeasts.Domain\DenounceBeasts.Domain.csproj", "{2F19516F-5003-4128-8ADE-D8348FD22546}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.Infrastructure", "DenounceBeasts.Infrastructure\DenounceBeasts.Infrastructure.csproj", "{FD30623D-2523-4C5C-A53A-5DF4483A069E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{B3F65EB1-E76A-44EF-9DB9-B18CA83A3027}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3F65EB1-E76A-44EF-9DB9-B18CA83A3027}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3F65EB1-E76A-44EF-9DB9-B18CA83A3027}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F19516F-5003-4128-8ADE-D8348FD22546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F19516F-5003-4128-8ADE-D8348FD22546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F19516F-5003-4128-8ADE-D8348FD22546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F19516F-5003-4128-8ADE-D8348FD22546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD30623D-2523-4C5C-A53A-5DF4483A069E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD30623D-2523-4C5C-A53A-5DF4483A069E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD30623D-2523-4C5C-A53A-5DF4483A069E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD30623D-2523-4C5C-A53A-5DF4483A069E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

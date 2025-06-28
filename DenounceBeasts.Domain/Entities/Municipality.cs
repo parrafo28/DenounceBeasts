@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DenounceBeasts.API.Entities
+namespace DenounceBeasts.Domain.Entities
 {
     //attribute to map the class to a database table
     //[Table("MUNICIPALTY")] 
@@ -29,8 +29,17 @@ namespace DenounceBeasts.API.Entities
         [StringLength(150)]
         public string Name { get; set; } = string.Empty;
 
-        //public virtual List<Sector> Sectors { get; set; }
-        public virtual ICollection<Sector> Sectors { get; set; }
+        public virtual List<Sector> Sectors { get; set; }
+   
+        public string SetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Municipality name cannot be empty.", nameof(name));
+            }
+            Name = name;
+            return Name;
+        }
 
     }
 }

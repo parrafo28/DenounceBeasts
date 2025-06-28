@@ -1,6 +1,6 @@
-﻿using DenounceBeasts.API.Data;
-using DenounceBeasts.API.DTOs;
-using DenounceBeasts.API.Entities;
+﻿using DenounceBeasts.API.DTOs;
+using DenounceBeasts.Infrastructure;
+using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
@@ -11,17 +11,20 @@ namespace DenounceBeasts.API.Controllers
     public class SectorsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly SectorRepository _sectorRepository;
 
-        public SectorsController(ApplicationDbContext context)
+        public SectorsController(ApplicationDbContext context,  SectorRepository sectorRepository)
         {
             _context = context;
+            _sectorRepository = sectorRepository;
         }
 
         // GET: api/Sectors
         [HttpGet]
         public IActionResult GetSectors()
         {
-            var sectors = _context.Sectors.ToList();
+            //var sectors = _context.Sectors.Where(p=> p.IsActive == true).ToList();
+            var sectors = _context.Sectors.Where(p=> p.IsActive).ToList();
 
             var sectorsResponse = new List<SectorDto>();
 

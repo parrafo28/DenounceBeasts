@@ -1,8 +1,8 @@
-﻿using DenounceBeasts.API.Entities;
+﻿using DenounceBeasts.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
  
 
-namespace DenounceBeasts.API.Data
+namespace DenounceBeasts.Infrastructure
 {
     //is not correct use this name, you need to names like DenounceBeastsDataContext or DenounceBeastsDbContext
     public class ApplicationDbContext : DbContext
@@ -13,8 +13,21 @@ namespace DenounceBeasts.API.Data
         }
 
         // Define DbSets for your entities
-        public DbSet<Municipality> Municipalities { get; set; }
+        public DbSet<DenounceBeasts.Domain.Entities.Municipality> Municipalities { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Complaint> Complaints { get; set; }
+        public DbSet<ComplaintHistory> ComplaintHistories { get; set; }
+        public DbSet<ComplaintType> ComplaintTypes { get; set; }
+        public DbSet<Notification> Notification { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Status> Status { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Vote> Votes { get; set; }
         public DbSet<Sector> Sectors { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

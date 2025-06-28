@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DenounceBeasts.API.Entities
+namespace DenounceBeasts.Domain.Entities
 {
     public class Attachment
     {
