@@ -13,7 +13,7 @@
 
         // Relaciones
         public virtual Complaint Complaint { get; set; }
-        public virtual User User { get; set; }
+       // public virtual User User { get; set; }
         public virtual Status Status { get; set; }
     }
 }

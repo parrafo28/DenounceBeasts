@@ -12,7 +12,7 @@
         public bool IsUpvote { get; set; }
 
         // Relaciones Muchos a Muchos (tablas de unión)
-        public virtual User User { get; set; }
+       // public virtual User User { get; set; }
         public virtual Complaint Complaint { get; set; }
     }
 }

@@ -11,7 +11,7 @@
         public string Description { get; set; }
 
         // Relaciones Muchos a Muchos
-        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+      //  public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
     }
 }

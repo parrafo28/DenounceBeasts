@@ -20,8 +20,12 @@ namespace DenounceBeasts.Domain.Entities
 
         public int MunicipalityId { get; set; }
         public virtual Municipality Municipality { get; set; }
-        public virtual ICollection<Complaint> Complaints { get; set; } = new List<Complaint>();
+        public virtual ICollection<Complaint> Complaints { get; set; } //= new List<Complaint>();
 
+        //public Sector()
+        //{
+        //    Municipality = new Municipality();
+        //}
 
     }
 }

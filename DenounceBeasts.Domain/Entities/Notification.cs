@@ -15,6 +15,6 @@
         public int? RelatedEntityId { get; set; }
 
         // Relaciones
-        public virtual User User { get; set; }
+      //  public virtual User User { get; set; }
     }
 }

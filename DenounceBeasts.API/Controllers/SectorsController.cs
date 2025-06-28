@@ -1,4 +1,5 @@
 ﻿using DenounceBeasts.API.DTOs;
+using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -6,71 +7,66 @@ using Microsoft.AspNetCore.Mvc;
 namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
-    //[Route("api/Sectors")]
     [Route("api/[controller]")]
     public class SectorsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly SectorRepository _sectorRepository;
 
-        public SectorsController(ApplicationDbContext context,  SectorRepository sectorRepository)
+        public SectorsController(ApplicationDbContext context, SectorRepository sectorRepository)
         {
             _context = context;
             _sectorRepository = sectorRepository;
         }
 
-        // GET: api/Sectors
         [HttpGet]
-        public IActionResult GetSectors()
+        public async Task<IActionResult> GetSectors()
         {
-            //var sectors = _context.Sectors.Where(p=> p.IsActive == true).ToList();
-            var sectors = _context.Sectors.Where(p=> p.IsActive).ToList();
+            // var sectors = await _sectorRepository.GetAllSectorsAsync();
+
+            return Ok(await _sectorRepository.GetAllSectorsAsync());
+        }
+
+        [HttpGet]
+        [Route("with-municipality")]
+        public async Task<IActionResult> GetSectorsWithMunicipality()
+        {
+            var sectors = await _sectorRepository.GetSectorWithTheirMunicipaltyAsync();
 
             var sectorsResponse = new List<SectorDto>();
-
-            //foreach (var s in sectors)
-            //{
-
-            //    var sectorDto = new SectorDto
-            //    {
-            //        Id = s.Id,
-            //        Code = s.Code,
-            //        Name = s.Name,
-            //        MunicipalityId = s.MunicipalityId
-            //    };
-            //    sectorsResponse.Add(sectorDto);
-            //}
 
             sectorsResponse = sectors.Select(s => new SectorDto
             {
                 Id = s.Id,
                 Code = s.Code,
                 Name = s.Name,
-                MunicipalityId = s.MunicipalityId
+                MunicipalityId = s.MunicipalityId,
+                MunicipaltyName = s.Municipality.Name,
+                MunicipaltyCode = s.Municipality.Code
+                //Municipality = new MunicipalityDto
+                //{
+                //    Id = s.Municipality.Id,
+                //    Code = s.Municipality.Code,
+                //    Name = s.Municipality.Name
+                //}
+
             }).ToList();
-             
+
             return Ok(sectorsResponse);
         }
 
-        // GET: api/Sectors/5
-        [HttpGet("{id}")]
-        public IActionResult GetSector(int id)
+        [HttpGet]
+        [Route("by-municipality")]
+        public async Task<IActionResult> GetSectorsByMunicipality([FromQuery] int municipalityId)
         {
-            //Sector sector = new Sector();
-            //var sector = new Sector();
-            // Sector sector;
-            // var sector;
-            //foreach (var item in _sectors)
-            //{
-            //    if (item.Id == id)
-            //    {
-            //        sector = item;
-            //        //  return Ok(sector);
-            //        break;
-            //    }
-            //}
-            //sector = _sectors.FirstOrDefault(s => s.Id == id);
-            var sector = _context.Sectors.Where(s => s.Id == id).FirstOrDefault();
+            return Ok(await _sectorRepository.GetSectorsByMunicipalityId(municipalityId));
+
+        } 
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSector(int id)
+        {
+            var sector = await _sectorRepository.GetSectorByIdAsync(id);
             if (sector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
@@ -82,19 +78,16 @@ namespace DenounceBeasts.API.Controllers
                 Name = sector.Name,
                 MunicipalityId = sector.MunicipalityId
             };
-            return Ok(sectorResponse); 
+            return Ok(sectorResponse);
         }
 
-        // POST: api/Sectors
         [HttpPost]
-        public IActionResult CreateSector([FromBody] CreateSectorDto request)
+        public async Task<IActionResult> CreateSector([FromBody] CreateSectorDto request)
         {
             if (request == null)
             {
                 return BadRequest("Sector cannot be null.");
             }
-            //  sector.Id = _sectors.Max(s => s.Id) + 1; 
-            // sector.Id = _sectors.Count() + 1;
 
             var sector = new Sector
             {
@@ -103,40 +96,23 @@ namespace DenounceBeasts.API.Controllers
                 MunicipalityId = request.MunicipalityId,
                 Name = request.Name,
             };
-            _context.Sectors.Add(sector);
-            _context.SaveChanges();
+            //var response = await _sectorRepository.AddSectorAsync(sector);
+            sector = await _sectorRepository.AddSectorAsync(sector);
+
             return Ok(new { id = sector.Id });
 
         }
 
-        //[HttpPut]
-        //public IActionResult UpdateSector([FromBody] Sector sector)
-        //{
-        //    if (sector == null  )
-        //    {
-        //        return BadRequest("Sector is null or ID mismatch.");
-        //    }
-        //    var existingSector = _sectors.FirstOrDefault(s => s.Id == sector.Id);
-        //    if (existingSector == null)
-        //    {
-        //        return NotFound($"Sector with ID {sector.Id} not found.");
-        //    }
-        //    existingSector.Name = sector.Name;
-        //    existingSector.Code = sector.Code;
-        //    existingSector.UpdatedAt = DateTime.Now;
-        //    //return Ok(existingSector);
-        //    return Ok(_sectors);
-        //}
-        //// PUT: api/Sectors/5
 
         [HttpPut("{id}")]
-        public IActionResult UpdateSector(int id, [FromBody] UpdateSectorDto request)
+        public async Task<IActionResult> UpdateSector(int id, [FromBody] UpdateSectorDto request)
         {
             if (request == null || request.Id != id)
             {
                 return BadRequest("Sector is null or ID mismatch.");
             }
-            var existingSector = _context.Sectors.FirstOrDefault(s => s.Id == id);
+            //var existingSector = _sectorRepository.GetSectorByIdAsync(id).Result;
+            var existingSector = await _sectorRepository.GetSectorByIdAsync(id);
             if (existingSector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
@@ -145,23 +121,21 @@ namespace DenounceBeasts.API.Controllers
             existingSector.Code = request.Code;
             existingSector.UpdatedAt = DateTime.Now;
             existingSector.MunicipalityId = request.MunicipalityId;
-            _context.Sectors.Update(existingSector);
-            _context.SaveChanges();
-            // return Ok(existingSector);
+            //  _sectorRepository.UpdateSectorAsync(existingSector).Wait();
+            await _sectorRepository.UpdateSectorAsync(existingSector);
+
             return NoContent();
         }
 
-        // DELETE: api/Sectors/5
         [HttpDelete("{id}")]
-        public IActionResult DeleteSector(int id)
+        public async Task<IActionResult> DeleteSector(int id)
         {
-            var sector = _context.Sectors.FirstOrDefault(s => s.Id == id);
+            var sector = _sectorRepository.GetSectorByIdAsync(id);
             if (sector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
             }
-            _context.Sectors.Remove(sector);
-            _context.SaveChanges();
+            await _sectorRepository.DeleteSectorAsync(id);
             return NoContent();
         }
     }

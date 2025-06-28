@@ -22,6 +22,13 @@ namespace DenounceBeasts.Infrastructure.Repositories
             return await _context.Sectors.Where(s => s.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<List<Sector>> GetSectorsByMunicipalityId(int municipalityId)
+        {
+            return await _context.Sectors.Where(s => s.IsActive && s.MunicipalityId == municipalityId
+            )
+                .ToListAsync();
+        }
         public async Task<Sector?> GetSectorByIdAsync(int id)
         {
             return await _context.Sectors.FindAsync(id);
