@@ -13,8 +13,7 @@
         public string NotificationType { get; set; }
         public string RelatedEntityType { get; set; }
         public int? RelatedEntityId { get; set; }
-
-        // Relaciones
-      //  public virtual User User { get; set; }
+         
+        public virtual User User { get; set; }
     }
 }

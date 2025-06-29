@@ -9,7 +9,7 @@
         public int UserId { get; set; }
         public int RoleId { get; set; }
 
-        // Relaciones Muchos a Muchos (tablas de unión)
+        //Many to many relation (join union)
         public virtual User User { get; set; }
         public virtual Role Role { get; set; }
     }

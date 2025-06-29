@@ -10,8 +10,8 @@
         public string NormalizedName { get; set; }
         public string Description { get; set; }
 
-        // Relaciones Muchos a Muchos
-      //  public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        //many to many relations
+       public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
     }
 }

@@ -15,7 +15,7 @@ namespace DenounceBeasts.Domain.Entities
         //[Column("Complaint_Id")]
         public int ComplaintId { get; set; }
 
-        // Relaciones Uno a Muchos (extremo muchos)
+        //One to Many relation (side many)
         public virtual Complaint Complaint { get; set; }
     }
 }

@@ -13,7 +13,7 @@
         public DateTime? BirthDate { get; set; }
         public string Bio { get; set; }
 
-        // Relación Uno a Uno
+        // one to one relations
         public virtual User User { get; set; }
     }
 }

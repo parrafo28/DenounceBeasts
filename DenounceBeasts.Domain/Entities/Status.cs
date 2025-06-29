@@ -10,7 +10,7 @@
         public string Description { get; set; }
         public string Color { get; set; }
 
-        // Relaciones Uno a Muchos
+        //One to many relations
         public virtual ICollection<Complaint> Complaints { get; set; } = new List<Complaint>();
 
     }

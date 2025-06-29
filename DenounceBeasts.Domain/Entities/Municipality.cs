@@ -31,15 +31,15 @@ namespace DenounceBeasts.Domain.Entities
 
         public virtual List<Sector> Sectors { get; set; }
    
-        public string SetName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Municipality name cannot be empty.", nameof(name));
-            }
-            Name = name;
-            return Name;
-        }
+        //public string SetName(string name)
+        //{
+        //    if (string.IsNullOrWhiteSpace(name))
+        //    {
+        //        throw new ArgumentException("Municipality name cannot be empty.", nameof(name));
+        //    }
+        //    Name = name;
+        //    return Name;
+        //}
 
     }
 }

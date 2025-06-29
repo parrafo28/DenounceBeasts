@@ -11,9 +11,9 @@
         public int StatusId { get; set; }
         public string Comments { get; set; }
 
-        // Relaciones
+        // Navigation properties (relations)
         public virtual Complaint Complaint { get; set; }
-       // public virtual User User { get; set; }
+        public virtual User User { get; set; }
         public virtual Status Status { get; set; }
     }
 }
