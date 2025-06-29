@@ -90,28 +90,7 @@ namespace DenounceBeasts.Infrastructure
                 .HasIndex(ur => new { ur.UserId, ur.RoleId })
                 .IsUnique();
 
-            // Configure Complaint-Status relationship to avoid multiple cascade paths
-            modelBuilder.Entity<Complaint>()
-                .HasOne<Status>()
-                .WithMany(s => s.Complaints)
-                .HasForeignKey(c => c.StatusId)
-                .OnDelete(DeleteBehavior.NoAction);
 
-            // ComplaintHistory - Status relationship
-            modelBuilder.Entity<ComplaintHistory>()
-                .HasOne(ch => ch.Status)
-                .WithMany()
-                .HasForeignKey(ch => ch.StatusId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure decimal precision for latitude and longitude
-            modelBuilder.Entity<Complaint>()
-                .Property(c => c.Latitude)
-                .HasColumnType("decimal(10, 8)");
-
-            modelBuilder.Entity<Complaint>()
-                .Property(c => c.Longitude)
-                .HasColumnType("decimal(11, 8)");
 
             // Indexes
             modelBuilder.Entity<User>()
@@ -140,6 +119,9 @@ namespace DenounceBeasts.Infrastructure
             modelBuilder.Entity<Municipality>()
                 .HasIndex(m => m.Code)
                 .IsUnique();
+
+
+
         }
     }
 }
