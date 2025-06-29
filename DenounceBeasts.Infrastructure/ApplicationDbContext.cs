@@ -53,7 +53,7 @@ namespace DenounceBeasts.Infrastructure
                 .HasOne(c => c.User)
                 .WithMany(u => u.Complaints)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
 
             // ComplaintHistory - Complaint relationship
             modelBuilder.Entity<ComplaintHistory>()
