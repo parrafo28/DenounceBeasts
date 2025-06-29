@@ -28,13 +28,11 @@ namespace DenounceBeasts.Infrastructure
         public DbSet<Vote> Votes { get; set; }
         public DbSet<Sector> Sectors { get; set; }
 
-
+        // Configure entity properties and relationships here if needed 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure entity properties and relationships here if needed
-            //fluent API configuration
-
-            //aditional need it because EF asume "cascade" delete by default due StatusId and ComplaintId are not null
+            //fluent API configuration for relationships and constraints
+            //EF asume "cascade" delete by default due StatusId and ComplaintId are not null
             //the problem with this is than if you delete status that will delete complaints but also complainthistories
             // normally if you want that stupid behavior is up to you, 
             //the problem is than status is related to complaintshistory and when you delete a status will try to delete the record too
@@ -42,101 +40,54 @@ namespace DenounceBeasts.Infrastructure
             //so, ef fail on that escenario but when you apply the migration the database 
             //refuse that kind of behavior
             // Complaint - Status relationship
+
+            // *** Configurations than cant be infered by EF ***
+             
+            // Complaint - Status relationship  
             modelBuilder.Entity<Complaint>()
                 .HasOne(c => c.Status)
                 .WithMany(s => s.Complaints)
                 .HasForeignKey(c => c.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Complaint - User relationship
+            // Complaint - User relationship 
             modelBuilder.Entity<Complaint>()
                 .HasOne(c => c.User)
                 .WithMany(u => u.Complaints)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // ComplaintHistory - Complaint relationship
-            modelBuilder.Entity<ComplaintHistory>()
-                .HasOne(ch => ch.Complaint)
-                .WithMany(c => c.History)
-                .HasForeignKey(ch => ch.ComplaintId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ComplaintHistory - Status relationship
+            // ComplaintHistory - Status relationship  
             modelBuilder.Entity<ComplaintHistory>()
                 .HasOne(ch => ch.Status)
                 .WithMany()
                 .HasForeignKey(ch => ch.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ComplaintHistory - User relationship
+            // ComplaintHistory - User relationship  
             modelBuilder.Entity<ComplaintHistory>()
                 .HasOne(ch => ch.User)
                 .WithMany()
                 .HasForeignKey(ch => ch.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //aditional
-
-            //User - Vote - Complaint(Many - to - Many)
-            modelBuilder.Entity<Vote>()
-                .HasOne(v => v.User)
-                .WithMany(u => u.Votes)
-                .HasForeignKey(v => v.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Vote>()
-                .HasOne(v => v.Complaint)
-                .WithMany(c => c.Votes)
-                .HasForeignKey(v => v.ComplaintId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Unique constraint for user votes on complaints
-            modelBuilder.Entity<Vote>()
-                .HasIndex(v => new { v.UserId, v.ComplaintId })
-                .IsUnique();
-
-            // User - Comment - Complaint (Many-to-Many)
-            modelBuilder.Entity<Comment>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Comments)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(c => c.Complaint)
-                .WithMany(c => c.Comments)
-                .HasForeignKey(c => c.ComplaintId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Comment self-referencing relationship for replies
+            // Comment self-referencing relationship  
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.ParentComment)
                 .WithMany(c => c.Replies)
                 .HasForeignKey(c => c.ParentCommentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // User - Role(Many - to - Many)
-            modelBuilder.Entity<UserRole>()
-                .HasOne(ur => ur.User)
-                .WithMany(u => u.UserRoles)
-                .HasForeignKey(ur => ur.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<UserRole>()
-                .HasOne(ur => ur.Role)
-                .WithMany(r => r.UserRoles)
-                .HasForeignKey(ur => ur.RoleId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Unique constraint for user roles
+            // Index Configurations than cant be infered by EF
+            modelBuilder.Entity<Vote>()
+                .HasIndex(v => new { v.UserId, v.ComplaintId })
+                .IsUnique();
+             
             modelBuilder.Entity<UserRole>()
                 .HasIndex(ur => new { ur.UserId, ur.RoleId })
                 .IsUnique();
 
-
-
-            // Indexes
+            // other indexes than are explicit set by the programmer for performance
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -164,8 +115,54 @@ namespace DenounceBeasts.Infrastructure
                 .HasIndex(m => m.Code)
                 .IsUnique();
 
+            //configurations than can be infered by EF
+            /*
+            // ComplaintHistory - Complaint relationship
+            modelBuilder.Entity<ComplaintHistory>()
+                .HasOne(ch => ch.Complaint)
+                .WithMany(c => c.History)
+                .HasForeignKey(ch => ch.ComplaintId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            //User - Vote - Complaint(Many - to - Many)
+            modelBuilder.Entity<Vote>()
+                .HasOne(v => v.User)
+                .WithMany(u => u.Votes)
+                .HasForeignKey(v => v.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Vote>()
+                .HasOne(v => v.Complaint)
+                .WithMany(c => c.Votes)
+                .HasForeignKey(v => v.ComplaintId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User - Comment - Complaint (Many-to-Many)
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Complaint)
+                .WithMany(c => c.Comments)
+                .HasForeignKey(c => c.ComplaintId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User - Role(Many - to - Many)
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+            */
         }
     }
 }
