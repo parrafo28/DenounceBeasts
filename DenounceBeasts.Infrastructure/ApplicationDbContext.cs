@@ -33,7 +33,51 @@ namespace DenounceBeasts.Infrastructure
         {
             // Configure entity properties and relationships here if needed
             //fluent API configuration
-             
+
+            //aditional need it because EF asume "cascade" delete by default due StatusId and ComplaintId are not null
+            //the problem with this is than if you delete status that will delete complaints but also complainthistories
+            // normally if you want that stupid behavior is up to you, 
+            //the problem is than status is related to complaintshistory and when you delete a status will try to delete the record too
+            //but the record was deleted before by the cascade delete of complaints,
+            //so, ef fail on that escenario but when you apply the migration the database 
+            //refuse that kind of behavior
+            // Complaint - Status relationship
+            modelBuilder.Entity<Complaint>()
+                .HasOne(c => c.Status)
+                .WithMany(s => s.Complaints)
+                .HasForeignKey(c => c.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Complaint - User relationship
+            modelBuilder.Entity<Complaint>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Complaints)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ComplaintHistory - Complaint relationship
+            modelBuilder.Entity<ComplaintHistory>()
+                .HasOne(ch => ch.Complaint)
+                .WithMany(c => c.History)
+                .HasForeignKey(ch => ch.ComplaintId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ComplaintHistory - Status relationship
+            modelBuilder.Entity<ComplaintHistory>()
+                .HasOne(ch => ch.Status)
+                .WithMany()
+                .HasForeignKey(ch => ch.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ComplaintHistory - User relationship
+            modelBuilder.Entity<ComplaintHistory>()
+                .HasOne(ch => ch.User)
+                .WithMany()
+                .HasForeignKey(ch => ch.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //aditional
+
             //User - Vote - Complaint(Many - to - Many)
             modelBuilder.Entity<Vote>()
                 .HasOne(v => v.User)
