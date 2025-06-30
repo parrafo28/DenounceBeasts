@@ -31,6 +31,14 @@ namespace DenounceBeasts.Infrastructure
         // Configure entity properties and relationships here if needed 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            // Global configuration to change all CASCADE delete to RESTRICT
+            //foreach (var relationship in modelBuilder.Model.GetEntityTypes()
+            //    .SelectMany(e => e.GetForeignKeys()))
+            //{
+            //    relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            //}
+
             //fluent API configuration for relationships and constraints
             //EF asume "cascade" delete by default due StatusId and ComplaintId are not null
             //the problem with this is than if you delete status that will delete complaints but also complainthistories
@@ -42,7 +50,7 @@ namespace DenounceBeasts.Infrastructure
             // Complaint - Status relationship
 
             // *** Configurations than cant be infered by EF ***
-             
+
             // Complaint - Status relationship  
             modelBuilder.Entity<Complaint>()
                 .HasOne(c => c.Status)
