@@ -1,20 +1,16 @@
-﻿using DenounceBeasts.Domain.Entities;
+﻿using DenounceBeasts.Domain.Contracts.Repositories;
+using DenounceBeasts.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DenounceBeasts.Infrastructure.Data.Repositories
 {
-    public class DistrictRepository: GenericRepository<District> 
+    public class DistrictRepository : GenericRepository<District>, IDistrictRepository
     {
         private readonly DataContext _context;
 
-        public DistrictRepository(DataContext context): base(context)
+        public DistrictRepository(DataContext context) : base(context)
         {
-           _context = context;
+            _context = context;
         }
 
         public async Task<List<District>> GetDistrictsWithMunicipalties()
@@ -30,7 +26,7 @@ namespace DenounceBeasts.Infrastructure.Data.Repositories
                 .Where(d => d.MunicipalityId == municipalityId)
                 .ToListAsync();
         }
-         
-         
+
+
     }
 }

@@ -4,21 +4,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DenounceBeasts.Infrastructure.Data.Repositories
 {
-    public class MunicipaltyRepository : GenericRepository<Municipality>, IMunicipaltyRepository
+    public class MunicipaltyFolzandoElMingoRepository: GenericRepository<Municipality> , IMunicipaltyRepository
     {
         private readonly DataContext _context;
 
-        public MunicipaltyRepository(DataContext context) : base(context)
+        public MunicipaltyFolzandoElMingoRepository(DataContext context): base(context)  
         {
             _context = context;
         }
 
         public async Task<List<Municipality>> GetMunicipaltiesWithDistricts()
         {
+            Console.WriteLine("Folzando the Mingo");
             return await _context.Municipalities
                 .Include(d => d.Districts)
                 .ToListAsync();
         }
-
+          
+         
     }
 }

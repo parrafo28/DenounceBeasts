@@ -10,12 +10,19 @@ namespace DenounceBeasts.API.Controllers
     public class DistrictsController : ControllerBase
     {
         //private readonly DistrictRepository _districtRepository;
-        private readonly GenericRepository<District> _districtRepository;
+        //private readonly GenericRepository<District> _districtRepository;
+        //private readonly MunicipaltyRepository _municipaltyRepository;
+        private readonly UnitOfWork _unitOfWork;
 
-       // public DistrictsController(DistrictRepository districtRepository)
-        public DistrictsController(GenericRepository<District> districtRepository)
+        // public DistrictsController(DistrictRepository districtRepository)
+        public DistrictsController(
+            //GenericRepository<District> districtRepository,
+            //MunicipaltyRepository municipaltyRepository,
+            UnitOfWork unitOfWork)
         {
-            _districtRepository = districtRepository;
+            //_districtRepository = districtRepository;
+            //_municipaltyRepository = municipaltyRepository;
+            _unitOfWork = unitOfWork;
         }
 
         //[HttpGet]
@@ -30,29 +37,34 @@ namespace DenounceBeasts.API.Controllers
         //    return Ok(districts);
         //}
 
-        //[HttpGet]
-        //[Route("with-municipality")]
-        //public async Task<IActionResult> GetDistrictsWithMunicipality()
-        //{
-        //    var districtsDb = await _districtRepository.GetDistrictsWithMunicipalties();
+        [HttpGet]
+        [Route("with-municipality")]
+        public async Task<IActionResult> GetDistrictsWithMunicipality()
+        {
+            //var municipalties = await _municipaltyRepository.GetAllAsync();
+            var municipalties = await _unitOfWork.Municipalities.GetAllAsync();
 
-        //   var districtsResponse = districtsDb.Select(d => new DistrictDto
-        //    {
-        //        Id = d.Id,
-        //        Name = d.Name,
-        //        Code = d.Code,
-        //        MunicipalityId = d.MunicipalityId,
-        //        MunicipalityName = d.Municipality?.Name, 
-        //        IsActive = d.IsActive
-        //    }).ToList();
-             
-        //    return Ok(districtsResponse);
-        //}
+          //  var districtsDb = await _districtRepository.GetAllAsync();
+            var districtsDb = await _unitOfWork.Districts.GetAllAsync();
+
+            var districtsResponse = districtsDb.Select(district => new DistrictDto
+            {
+                Id = district.Id,
+                Name = district.Name,
+                Code = district.Code,
+                MunicipalityId = district.MunicipalityId,
+                // MunicipalityName = d.Municipality?.Name,
+                MunicipalityName = municipalties.FirstOrDefault(m => m.Id == district.MunicipalityId).Name,
+                IsActive = district.IsActive
+            }).ToList();
+
+            return Ok(districtsResponse);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetDistricts()
         {
-            var districts = await _districtRepository.GetAllAsync();
+            var districts = await _unitOfWork.Districts.GetAllAsync();
 
             return Ok(districts);
         }
@@ -65,7 +77,7 @@ namespace DenounceBeasts.API.Controllers
             {
                 return BadRequest("Invalid district ID.");
             }
-            var district = await _districtRepository.GetByIdAsync(id);
+            var district = await _unitOfWork.Districts.GetByIdAsync(id);
             return Ok(district);
         }
 
@@ -92,8 +104,8 @@ namespace DenounceBeasts.API.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-            district = await _districtRepository.CreateAsync(district);
-
+            district = await _unitOfWork.Districts.CreateAsync(district);
+            await _unitOfWork.CompletAsync();
             //responding to the client
             return Ok(district);
 
@@ -106,7 +118,7 @@ namespace DenounceBeasts.API.Controllers
             {
                 return BadRequest("Invalid district data.");
             }
-            var existingDistrict = await _districtRepository.GetByIdAsync(request.Id);
+            var existingDistrict = await _unitOfWork.Districts.GetByIdAsync(request.Id);
             if (existingDistrict == null)
             {
                 return NotFound("District not found.");
@@ -117,8 +129,8 @@ namespace DenounceBeasts.API.Controllers
             existingDistrict.IsActive = request.IsActive;
             existingDistrict.UpdatedAt = DateTime.UtcNow;
 
-            await _districtRepository.UpdateAsync(existingDistrict);
-
+            await _unitOfWork.Districts.UpdateAsync(existingDistrict);
+            await _unitOfWork.CompletAsync();
             return Ok(existingDistrict);
 
         }
@@ -127,13 +139,13 @@ namespace DenounceBeasts.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> DeleteDistrict(int id)
         {
-            var existingDistrict = await _districtRepository.GetByIdAsync(id);
+            var existingDistrict = await _unitOfWork.Districts.GetByIdAsync(id);
 
             if (existingDistrict == null)
             {
                 return NotFound("District not found.");
             }
-            var result = await _districtRepository.DeleteAsync(id);
+            var result = await _unitOfWork.Districts.DeleteAsync(id);
             if (result == false)
             {
                 return BadRequest("Failed to delete district.");

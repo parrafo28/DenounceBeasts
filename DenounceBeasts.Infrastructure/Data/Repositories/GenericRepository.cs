@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DenounceBeasts.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace DenounceBeasts.Infrastructure.Data.Repositories
 {
-    public class GenericRepository<T> where T : class
+    public class GenericRepository<T> : IRepository<T> where T : class
     {
         private readonly DataContext _context;
 
@@ -21,13 +22,11 @@ namespace DenounceBeasts.Infrastructure.Data.Repositories
         public async Task<T> CreateAsync(T entity)
         {
             _context.Set<T>().Add(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
         public async Task<T> UpdateAsync(T entity)
         {
             _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
         public async Task<bool> DeleteAsync(int id)
