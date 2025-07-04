@@ -1,7 +1,8 @@
 
 using DenounceBeasts.Domain.Entities;
-using DenounceBeasts.Infrastructure.Data;
-using DenounceBeasts.Infrastructure.Data.Repositories;
+using DenounceBeasts.Infrastructure;
+using DenounceBeasts.Infrastructure.Interfaces;
+using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -13,13 +14,19 @@ builder.Services.AddDbContext<DataContext>(
 
 
 // Add services to the container.
-//builder.Services.AddTransient<MunicipalityRepository>();
- builder.Services.AddScoped<MunicipalityRepository>();
-////builder.Services.AddSingleton<MunicipalityRepository>();
-builder.Services.AddScoped<DistrictRepository>();
-builder.Services.AddScoped<GenericRepository<Municipality>>();
+////builder.Services.AddTransient<MunicipalityRepository>();
+// builder.Services.AddScoped<MunicipalityRepository>();
+//////builder.Services.AddSingleton<MunicipalityRepository>();
+//builder.Services.AddScoped<DistrictRepository>();
+//builder.Services.AddScoped<GenericRepository<Municipality>>();
+//builder.Services.AddScoped<UnitOfWork>();
 ///
-
+//builder.Services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+builder.Services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+//builder.Services.AddScoped<IRepository<Municipality>, GenericRepository<Municipality>>();
+builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
+//builder.Services.AddScoped<IDistrictRepository, DistrictForzandoTheMingoRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -27,7 +34,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
- 
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

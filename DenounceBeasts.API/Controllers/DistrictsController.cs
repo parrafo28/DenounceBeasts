@@ -1,8 +1,9 @@
 ﻿
 using DenounceBeasts.API.DTOs;
 using DenounceBeasts.Domain.Entities;
-using DenounceBeasts.Infrastructure.Data;
-using DenounceBeasts.Infrastructure.Data.Repositories;
+using DenounceBeasts.Infrastructure;
+using DenounceBeasts.Infrastructure.Interfaces;
+using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
@@ -11,19 +12,24 @@ namespace DenounceBeasts.API.Controllers
     [Route("api/[controller]")]
     public class DistrictsController : ControllerBase
     {
-        private readonly DistrictRepository _districtRepository;
-        private readonly GenericRepository<Municipality> _municipalityRepository;
-        //  private readonly MunicipalityRepository _municipalityRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDistrictRepository _districtRepository;
+        // private readonly GenericRepository<District> _districtRepository;
+        //private readonly GenericRepository<Municipality> _municipalityRepository;
+        private readonly IMunicipalityRepository _municipalityRepository;
         private readonly DataContext _context;
 
-        public DistrictsController(DistrictRepository districtRepository,
-            // MunicipalityRepository municipalityRepository,
-            GenericRepository<Municipality> municipalityRepository,
+        public DistrictsController(
+            IUnitOfWork unitOfWork,
+            IDistrictRepository districtRepository,
+             IMunicipalityRepository municipalityRepository,
+            // GenericRepository<Municipality> municipalityRepository,
             DataContext context)
         {
+            _unitOfWork = unitOfWork;
             _districtRepository = districtRepository;
             //  _municipalityRepository = municipalityRepository;
-               _municipalityRepository = municipalityRepository;
+            _municipalityRepository = municipalityRepository;
             _context = context;
         }
 
@@ -35,7 +41,8 @@ namespace DenounceBeasts.API.Controllers
             {
                 return BadRequest("Invalid municipality ID.");
             }
-            var districts = _districtRepository.GetDistrictsByMunicipalityId(municipalityId);
+            // var districts = _districtRepository.GetDistrictsByMunicipalityId(municipalityId);
+            var districts = _unitOfWork.Districts.GetDistrictsByMunicipalityId(municipalityId);
             if (districts == null || !districts.Any())
             {
                 return NotFound("No districts found for the specified municipality.");
@@ -80,8 +87,8 @@ namespace DenounceBeasts.API.Controllers
         public async Task<IActionResult> GetDistricts()
         {
             var temp = _context.Districts.ToList();
-            var districts = await _districtRepository.GetAllAsync();
-            var municipalities = await _municipalityRepository.GetAllAsync();
+            var districts = await _unitOfWork.Districts.GetAllAsync();
+            var municipalities = await _unitOfWork.Municipalities.GetAllAsync();
 
 
             var districtsWithTheirMunicipalities = districts
@@ -101,12 +108,12 @@ namespace DenounceBeasts.API.Controllers
         public IActionResult GetDistrictById(int id)
         {
 
-            var district = _districtRepository.GetByIdAsync(id);
+            var district = _unitOfWork.Districts.GetByIdAsync(id);
             return Ok(district);
         }
 
         [HttpPost]
-        public async Task< IActionResult> CreateDistrict([FromBody] CreateDistrictDto request)
+        public async Task<IActionResult> CreateDistrict([FromBody] CreateDistrictDto request)
         {
             //validations
             if (request == null)
@@ -128,21 +135,22 @@ namespace DenounceBeasts.API.Controllers
             //persisting resources
 
             //add the district to the repository
-            district = await _districtRepository.AddAsync(district);
-
+           // await _unitOfWork.BeginTransactionAsync();
+            district = await _unitOfWork.Districts.AddAsync(district);
+            await _unitOfWork.CompleteAsync();
             return Ok(new { id = district.Id });
 
 
         }
 
         [HttpPut]
-        public async Task<IActionResult > UpdateDistrict([FromBody] UpdateDistrictDto request)
+        public async Task<IActionResult> UpdateDistrict([FromBody] UpdateDistrictDto request)
         {
             if (request == null || request.Id <= 0)
             {
                 return BadRequest("Invalid district data.");
             }
-            var existingDistrict = await _districtRepository.GetByIdAsync(request.Id);
+            var existingDistrict = await _unitOfWork.Districts.GetByIdAsync(request.Id);
             if (existingDistrict == null)
             {
                 return NotFound("District not found.");
@@ -153,21 +161,25 @@ namespace DenounceBeasts.API.Controllers
             existingDistrict.IsActive = request.IsActive;
             existingDistrict.UpdatedAt = DateTime.UtcNow;
 
-            _districtRepository.Update(existingDistrict);
+            _unitOfWork.Districts.Update(existingDistrict);
+            await _unitOfWork.CompleteAsync();
+
             return NoContent();
 
         }
 
         [HttpDelete]
         [Route("{id:int}")]
-        public async Task< IActionResult> DeleteDistrict(int id)
+        public async Task<IActionResult> DeleteDistrict(int id)
         {
-            var district = await _districtRepository.GetByIdAsync(id);
+            var district = await _unitOfWork.Districts.GetByIdAsync(id);
             if (district == null)
             {
                 return NotFound("District not found.");
             }
-            _districtRepository.Delete(district);
+            _unitOfWork.Districts.Delete(district);
+            await _unitOfWork.CompleteAsync();
+
             return NoContent();
         }
     }
