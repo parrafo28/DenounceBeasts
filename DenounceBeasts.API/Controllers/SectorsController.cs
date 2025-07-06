@@ -1,6 +1,5 @@
 ﻿using DenounceBeasts.API.DTOs;
 using DenounceBeasts.Domain.Entities;
-using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,13 +9,22 @@ namespace DenounceBeasts.API.Controllers
     [Route("api/[controller]")]
     public class SectorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly SectorRepository _sectorRepository;
+        //  private readonly GenericRepository<Sector> repository;
 
-        public SectorsController(ApplicationDbContext context, SectorRepository sectorRepository)
+        // private readonly ApplicationDbContext _context;
+        // private readonly SectorRepository _sectorRepository;
+        private readonly UnitOfWork _unitOfWork;
+
+        public SectorsController(
+            //ApplicationDbContext context,
+            //    SectorRepository sectorRepository,
+            //  GenericRepository<Sector> repository,
+            UnitOfWork unitOfWork)
         {
-            _context = context;
-            _sectorRepository = sectorRepository;
+            // this.repository = repository;
+            // _context = context;
+            // _sectorRepository = sectorRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -24,14 +32,17 @@ namespace DenounceBeasts.API.Controllers
         {
             // var sectors = await _sectorRepository.GetAllSectorsAsync();
 
-            return Ok(await _sectorRepository.GetAllSectorsAsync());
+            // return Ok(await _sectorRepository.GetAllSectorsAsync());
+            var status = await _unitOfWork.Status.GetAllAsync();
+
+            return Ok(await _unitOfWork.Sectors.GetAllAsync());
         }
 
         [HttpGet]
         [Route("with-municipality")]
         public async Task<IActionResult> GetSectorsWithMunicipality()
         {
-            var sectors = await _sectorRepository.GetSectorWithTheirMunicipaltyAsync();
+            var sectors = await _unitOfWork.Sectors.GetSectorWithTheirMunicipalityAsync();
 
             var sectorsResponse = new List<SectorDto>();
 
@@ -41,8 +52,8 @@ namespace DenounceBeasts.API.Controllers
                 Code = s.Code,
                 Name = s.Name,
                 MunicipalityId = s.MunicipalityId,
-                MunicipaltyName = s.Municipality.Name,
-                MunicipaltyCode = s.Municipality.Code
+                MunicipalityName = s.Municipality.Name,
+                MunicipalityCode = s.Municipality.Code
                 //Municipality = new MunicipalityDto
                 //{
                 //    Id = s.Municipality.Id,
@@ -59,14 +70,14 @@ namespace DenounceBeasts.API.Controllers
         [Route("by-municipality")]
         public async Task<IActionResult> GetSectorsByMunicipality([FromQuery] int municipalityId)
         {
-            return Ok(await _sectorRepository.GetSectorsByMunicipalityId(municipalityId));
+            return Ok(await _unitOfWork.Sectors.GetSectorsByMunicipalityId(municipalityId));
 
-        } 
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSector(int id)
         {
-            var sector = await _sectorRepository.GetSectorByIdAsync(id);
+            var sector = await _unitOfWork.Sectors.GetByIdAsync(id);
             if (sector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
@@ -97,7 +108,10 @@ namespace DenounceBeasts.API.Controllers
                 Name = request.Name,
             };
             //var response = await _sectorRepository.AddSectorAsync(sector);
-            sector = await _sectorRepository.AddSectorAsync(sector);
+            //   await _unitOfWork.BeginTransactionAsync();
+            sector = await _unitOfWork.Sectors.AddAsync(sector);
+            await _unitOfWork.CompleteAsync();
+            // await _unitOfWork.CommitTransactionAsync();
 
             return Ok(new { id = sector.Id });
 
@@ -112,7 +126,7 @@ namespace DenounceBeasts.API.Controllers
                 return BadRequest("Sector is null or ID mismatch.");
             }
             //var existingSector = _sectorRepository.GetSectorByIdAsync(id).Result;
-            var existingSector = await _sectorRepository.GetSectorByIdAsync(id);
+            var existingSector = await _unitOfWork.Sectors.GetByIdAsync(id);
             if (existingSector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
@@ -122,7 +136,8 @@ namespace DenounceBeasts.API.Controllers
             existingSector.UpdatedAt = DateTime.Now;
             existingSector.MunicipalityId = request.MunicipalityId;
             //  _sectorRepository.UpdateSectorAsync(existingSector).Wait();
-            await _sectorRepository.UpdateSectorAsync(existingSector);
+            await _unitOfWork.Sectors.UpdateAsync(existingSector);
+            await _unitOfWork.CompleteAsync();
 
             return NoContent();
         }
@@ -130,12 +145,14 @@ namespace DenounceBeasts.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSector(int id)
         {
-            var sector = _sectorRepository.GetSectorByIdAsync(id);
+            var sector = _unitOfWork.Sectors.GetByIdAsync(id);
             if (sector == null)
             {
                 return NotFound($"Sector with ID {id} not found.");
             }
-            await _sectorRepository.DeleteSectorAsync(id);
+            await _unitOfWork.Sectors.DeleteAsync(id);
+            await _unitOfWork.CompleteAsync();
+
             return NoContent();
         }
     }

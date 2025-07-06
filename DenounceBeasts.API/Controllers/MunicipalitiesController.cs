@@ -5,6 +5,7 @@ using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace DenounceBeasts.API.Controllers
 {
@@ -12,22 +13,28 @@ namespace DenounceBeasts.API.Controllers
     [Route("api/[controller]")]
     public class MunicipalitiesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly MunicipaltyRepository _municipaltyRepository;
-        private readonly SectorRepository _sectorRepository;
+        //private readonly ApplicationDbContext _unitOfWork;
+        //private readonly MunicipalityRepository _municipalityRepository;
+        //private readonly SectorRepository _sectorRepository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public MunicipalitiesController(ApplicationDbContext context, MunicipaltyRepository municipaltyRepository, SectorRepository sectorRepository)
+        public MunicipalitiesController(
+            //ApplicationDbContext context,
+            //MunicipalityRepository municipalityRepository,
+           // SectorRepository sectorRepository, 
+            UnitOfWork unitOfWork)
         {
-            _context = context;
-            _municipaltyRepository = municipaltyRepository;
-            _sectorRepository = sectorRepository;
+            //_unitOfWork = context;
+            //_municipalityRepository = municipalityRepository;
+            //_sectorRepository = sectorRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public IActionResult GetMunicipalities()
+        public async  Task<IActionResult> GetMunicipalities()
         {
-            var municipalities = _context.Municipalities.ToList();
-            var sectosrs = _context.Sectors.ToList();
+            var municipalities = await _unitOfWork.Municipalities.GetAllAsync();
+            var sectosrs = await  _unitOfWork.Sectors.GetAllSectorsActiveAsync();
 
             var municipalitiesResponse = new List<MunicipalityDto>();
 
@@ -56,8 +63,7 @@ namespace DenounceBeasts.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMunicipality(int id)
         {
-            var municipality = await _context.Municipalities
-                .Where(s => s.Id == id).FirstOrDefaultAsync();
+            var municipality = await _unitOfWork.Municipalities.GetByIdAsync(id) ;
 
             if (municipality == null)
             {
@@ -73,7 +79,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateMunicipality([FromBody] MunicipalityDto request)
+        public async Task<IActionResult> CreateMunicipality([FromBody] MunicipalityDto request)
         {
             //validations
             if (request == null)
@@ -92,10 +98,10 @@ namespace DenounceBeasts.API.Controllers
                 CreatedAt = DateTime.Now,
                 Name = request.Name,
             };
-            _context.Municipalities.Add(municipality);
+           await  _unitOfWork.Municipalities.AddAsync(municipality);
 
             //persisting changes to the database
-            _context.SaveChanges();
+            await _unitOfWork.CompleteAsync();
 
             //return the response
             return Ok(new { id = municipality.Id });
@@ -103,13 +109,13 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateMunicipality(int id, [FromBody] MunicipalityDto request)
+        public async Task<IActionResult> UpdateMunicipality(int id, [FromBody] MunicipalityDto request)
         {
             if (request == null || request.Id != id)
             {
                 return BadRequest("Municipality is null or ID mismatch.");
             }
-            var existingMunicipality = _context.Municipalities.FirstOrDefault(s => s.Id == id);
+            var existingMunicipality = await _unitOfWork.Municipalities.GetByIdAsync(  id);
             if (existingMunicipality == null)
             {
                 return NotFound($"Municipality with ID {id} not found.");
@@ -117,21 +123,17 @@ namespace DenounceBeasts.API.Controllers
             existingMunicipality.Name = request.Name;
             existingMunicipality.Code = request.Code;
             existingMunicipality.UpdatedAt = DateTime.Now;
-            _context.Municipalities.Update(existingMunicipality);
-            _context.SaveChanges();
+           await  _unitOfWork.Municipalities.UpdateAsync(existingMunicipality);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteMunicipality(int id)
+        public async Task<IActionResult> DeleteMunicipalityAsync(int id)
         {
-            var municipality = _context.Municipalities.FirstOrDefault(s => s.Id == id);
-            if (municipality == null)
-            {
-                return NotFound($"Municipality with ID {id} not found.");
-            }
-            _context.Municipalities.Remove(municipality);
-            _context.SaveChanges();
+         
+            await _unitOfWork.Municipalities.DeleteAsync(id);
+            await _unitOfWork.CompleteAsync();
             return NoContent();
         }
     }

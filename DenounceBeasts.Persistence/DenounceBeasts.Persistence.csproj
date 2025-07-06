@@ -7,18 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Data\**" />
-    <EmbeddedResource Remove="Data\**" />
-    <None Remove="Data\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DenounceBeasts.Persistence\DenounceBeasts.Persistence.csproj" />
+    <ProjectReference Include="..\DenounceBeasts.Domain\DenounceBeasts.Domain.csproj" />
   </ItemGroup>
 
 </Project>

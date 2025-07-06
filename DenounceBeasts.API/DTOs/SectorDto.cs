@@ -10,7 +10,7 @@
 
         public int MunicipalityId { get; set; }
        // public MunicipalityDto Municipality { get;  set; }
-        public string MunicipaltyName { get;  set; }
-        public string MunicipaltyCode { get;  set; }
+        public string MunicipalityName { get;  set; }
+        public string MunicipalityCode { get;  set; }
     }
 }
