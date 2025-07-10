@@ -1,4 +1,4 @@
-﻿using DenounceBeasts.API.DTOs;
+﻿using DenounceBeasts.Application.DTOs;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure.Data;
 using DenounceBeasts.Infrastructure.Data.Repositories;

@@ -1,4 +1,4 @@
-﻿namespace DenounceBeasts.API.DTOs
+﻿namespace DenounceBeasts.Application.DTOs
 {
     public class UpdateDistrictDto: CreateDistrictDto
     {

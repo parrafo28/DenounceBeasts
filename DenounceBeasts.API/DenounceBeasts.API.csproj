@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DenounceBeasts.Infrastructure\DenounceBeasts.Infrastructure.csproj" />
+    <ProjectReference Include="..\DenounceBeasts.Application\DenounceBeasts.Application.csproj" />
   </ItemGroup>
 
 </Project>

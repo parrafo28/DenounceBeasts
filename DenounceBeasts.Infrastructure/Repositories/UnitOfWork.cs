@@ -1,9 +1,10 @@
-﻿using DenounceBeasts.Domain.Contracts.Repositories;
+﻿using DenounceBeasts.Domain.Contracts;
+using DenounceBeasts.Domain.Contracts.Repositories;
 using DenounceBeasts.Domain.Entities;
 
 namespace DenounceBeasts.Infrastructure.Data.Repositories
 {
-    public class UnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
 
         public IMunicipaltyRepository Municipalities { get; }
@@ -20,7 +21,7 @@ namespace DenounceBeasts.Infrastructure.Data.Repositories
             //    throw new ArgumentNullException(nameof(municipalityRepository), "Municipality repository cannot be null.");
             Municipalities = municipalityRepository;
             // Municipalities = municipalityRepository ?? new MunicipaltyRepository(_context);
-            Districts = districtRepository; 
+            Districts = districtRepository;
         }
 
 
