@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\P2Thursday\DenounceBeastsThursday\DenounceBeasts\DenounceBeasts.Infrastructure\DenounceBeasts.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\P2Thursday\DenounceBeastsThursday\DenounceBeasts\DenounceBeasts.Application\DenounceBeasts.Application.csproj" />
   </ItemGroup>
 
 </Project>

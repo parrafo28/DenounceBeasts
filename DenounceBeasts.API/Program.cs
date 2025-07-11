@@ -1,9 +1,15 @@
 
+using AutoMapper;
+using DenounceBeasts.Application.Interfaces;
+using DenounceBeasts.Application.MapperProfiles;
+using DenounceBeasts.Application.Services;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Interfaces;
 using DenounceBeasts.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,11 +34,23 @@ builder.Services.AddScoped<IDistrictRepository, DistrictRepository>();
 //builder.Services.AddScoped<IDistrictRepository, DistrictForzandoTheMingoRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
+builder.Services.AddScoped<IDistrictService, DistrictService>();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+// Register AutoMapper manually
+ 
+
+//builder.Services.AddSingleton<IMapper>(provider =>
+//{
+//    var configuration = provider.GetRequiredService<MapperConfiguration>();
+//    return configuration.CreateMapper();
+//});
+
+//builder.Services.AddControllers().AddJsonOptions(options =>
+//{
+//    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+//    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+//});
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -1,4 +1,4 @@
-﻿using DenounceBeasts.API.DTOs;
+﻿using DenounceBeasts.Application.DTOs;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -50,7 +50,7 @@ namespace DenounceBeasts.API.Controllers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             _context.Municipalities.Add(municipality);
             _context.SaveChanges();
             return Ok(new { id = municipality.Id });

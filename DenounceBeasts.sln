@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.Domain", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.Infrastructure", "..\..\P2Thursday\DenounceBeastsThursday\DenounceBeasts\DenounceBeasts.Infrastructure\DenounceBeasts.Infrastructure.csproj", "{CCE3E0FE-917A-42E7-9FAC-232DDD067791}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DenounceBeasts.Application", "..\..\P2Thursday\DenounceBeastsThursday\DenounceBeasts\DenounceBeasts.Application\DenounceBeasts.Application.csproj", "{AC4F2E50-ACB6-4639-A8CF-FED10D7D4D63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CCE3E0FE-917A-42E7-9FAC-232DDD067791}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCE3E0FE-917A-42E7-9FAC-232DDD067791}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCE3E0FE-917A-42E7-9FAC-232DDD067791}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC4F2E50-ACB6-4639-A8CF-FED10D7D4D63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC4F2E50-ACB6-4639-A8CF-FED10D7D4D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC4F2E50-ACB6-4639-A8CF-FED10D7D4D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC4F2E50-ACB6-4639-A8CF-FED10D7D4D63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
