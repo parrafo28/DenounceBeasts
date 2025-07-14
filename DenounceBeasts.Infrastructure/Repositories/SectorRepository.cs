@@ -57,7 +57,8 @@ namespace DenounceBeasts.Infrastructure.Repositories
 
         public async Task<List<Sector>> GetSectorsByMunicipalityId(int municipalityId)
         {
-            return await _context.Sectors.Where(s => s.IsActive && s.MunicipalityId == municipalityId
+            return await _context.Sectors
+                .Where(s => s.IsActive && s.MunicipalityId == municipalityId
             )
                 .ToListAsync();
         }

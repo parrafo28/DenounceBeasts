@@ -115,10 +115,7 @@ namespace DenounceBeasts.Persistence
             modelBuilder.Entity<ComplaintType>()
                 .HasIndex(ct => ct.Name)
                 .IsUnique();
-
-            modelBuilder.Entity<Complaint>()
-                .HasIndex(ct => ct.Title);
-
+  
             modelBuilder.Entity<Status>()
                 .HasIndex(s => s.Name)
                 .IsUnique();
@@ -176,7 +173,7 @@ namespace DenounceBeasts.Persistence
                 .OnDelete(DeleteBehavior.Cascade);
             */
             // base.OnModelCreating(modelBuilder);
-           // SeederDb.SeedData(modelBuilder);
+          //SeederDb.SeedData(modelBuilder);
         }
     }
 }

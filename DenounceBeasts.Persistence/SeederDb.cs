@@ -1,10 +1,5 @@
 ﻿using DenounceBeasts.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DenounceBeasts.Persistence
 {
@@ -109,6 +104,7 @@ namespace DenounceBeasts.Persistence
                     Email = "juan.perez@example.com",
                     NickName = "juanperez",
                     PasswordHash = userPasswordHash,
+                    Picture = "/images/complaints/pothole-sample.jpg",
                     IsAnonymous = false,
                     DeviceId = "DEVICE-001",
                     CreatedAt = DateTime.UtcNow,
@@ -121,6 +117,7 @@ namespace DenounceBeasts.Persistence
                     LastName = "González",
                     Email = "maria.gonzalez@example.com",
                     NickName = "mariagonzalez",
+                    Picture = "/images/complaints/pothole-sample.jpg",
                     PasswordHash = userPasswordHash,
                     IsAnonymous = false,
                     DeviceId = "DEVICE-002",
@@ -186,6 +183,7 @@ namespace DenounceBeasts.Persistence
                     Address = "Av. 27 de Febrero, frente a Blue Mall",
                     Latitude = 18.4765d,
                     Longitude = -69.9399d,
+                    Image = "/images/complaints/pothole-sample.jpg",
                     UserId = 2,
                     ComplaintTypeId = 1, // Road Issue
                     StatusId = 1, // Pending
@@ -202,6 +200,7 @@ namespace DenounceBeasts.Persistence
                     Address = "Calle José Martí #45-67, Los Alcarrizos",
                     Latitude = 18.5051d,
                     Longitude = -70.0051d,
+                    Image = "/images/complaints/waste-sample.jpg",
                     UserId = 3,
                     ComplaintTypeId = 2, // Waste Management
                     StatusId = 2, // In Progress

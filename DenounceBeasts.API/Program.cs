@@ -1,3 +1,6 @@
+using DenounceBeasts.Application.Contracts;
+using DenounceBeasts.Application.MapingProfiles;
+using DenounceBeasts.Application.Services;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Contracts;
@@ -33,6 +36,13 @@ builder.Services.AddScoped<IMunicipalityRepository, MunicipalityForzandoTheMingo
 builder.Services.AddScoped<ISectorRepository, SectorRepository>();
 builder.Services.AddScoped<IRepository<Status>, GenericRepository<Status>>();
 
+builder.Services.AddScoped<ISectorService, SectorService>();
+builder.Services.AddScoped<IMunicipalityService, MunicipalityService>();
+
+var automapperLicence = builder.Configuration.GetSection("KeysConfigurations:AutomapperLicenceKey").Value;
+var automapperLicence2 = builder.Configuration.GetSection("AutomapperLicenceKey").Value;
+//builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+builder.Services.AddAutoMapper(cfg => cfg.LicenseKey = automapperLicence, typeof(MappingProfile));
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
