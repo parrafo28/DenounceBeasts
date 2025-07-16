@@ -1,0 +1,109 @@
+@inject DialogService DialogService
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <RadzenCard>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="bi bi-info-circle"></i> Información General
+                        </h6>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>ID:</strong></td>
+                                    <td>@Municipality.Id</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nombre:</strong></td>
+                                    <td>@Municipality.Name</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Código:</strong></td>
+                                    <td>
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="@Municipality.Code" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Estado:</strong></td>
+                                    <td>
+                                        @if (Municipality.IsActive)
+                                        {
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="Activo" />
+                                        }
+                                        else
+                                        {
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="Inactivo" />
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">
+                            <i class="bi bi-clock"></i> Fechas
+                        </h6>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Creado:</strong></td>
+                                    <td>
+                                        @if (Municipality.CreatedAt.HasValue)
+                                        {
+                                            <text>@Municipality.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm")</text>
+                                        }
+                                        else
+                                        {
+                                            <em class="text-muted">No disponible</em>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Actualizado:</strong></td>
+                                    <td>
+                                        @if (Municipality.UpdatedAt.HasValue)
+                                        {
+                                            <text>@Municipality.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</text>
+                                        }
+                                        else
+                                        {
+                                            <em class="text-muted">No disponible</em>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </RadzenCard>
+        </div>
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="@($"Municipio #{Municipality.Id}")" />
+                </div>
+                <div>
+                    <RadzenButton ButtonType="ButtonType.Button" 
+                                ButtonStyle="ButtonStyle.Light" 
+                                Icon="close" 
+                                Text="Cerrar" 
+                                Click="@Close" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Municipality Municipality { get; set; } = new();
+
+    private void Close()
+    {
+        DialogService.Close();
+    }
+}

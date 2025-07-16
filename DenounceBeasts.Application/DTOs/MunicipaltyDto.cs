@@ -6,7 +6,7 @@
         public bool IsActive { get; set; } = true;
         public string Name { get; set; }
         public string Code { get; set; }
-        public List<DistrictDto> Districts { get; set; }
+        public List<DistrictDto>? Districts { get; set; }
 
     }
 }

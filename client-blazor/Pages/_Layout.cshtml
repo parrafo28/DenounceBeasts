@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DenounceBeasts Blazor</title>
+    <base href="~/" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Radzen CSS -->
+    <link href="_content/Radzen.Blazor/css/material-base.css" rel="stylesheet">
+    
+    <!-- Estilos personalizados -->
+    <style>
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+            width: 260px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .top-row {
+            background-color: #f7f7f7;
+            border-bottom: 1px solid #d6d5d5;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 1rem;
+        }
+
+        .navbar-brand {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .btn-outline-primary {
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+
+        .text-primary {
+            color: #0d6efd !important;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-item .nav-link span {
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+            }
+        }
+
+        /* Radzen custom styles */
+        .rz-dialog {
+            border-radius: 8px;
+        }
+
+        .rz-notification {
+            border-radius: 8px;
+        }
+
+        .rz-button {
+            border-radius: 4px;
+        }
+
+        .rz-textbox, .rz-dropdown {
+            border-radius: 4px;
+        }
+
+        .rz-grid {
+            border-radius: 8px;
+        }
+
+        .rz-grid-table {
+            border-radius: 8px;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .d-flex.gap-2 {
+                flex-direction: column;
+            }
+            
+            .d-flex.gap-2 .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    @RenderBody()
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            Ha ocurrido un error. Esta aplicación podría no responder hasta que se recargue.
+        </environment>
+        <environment include="Development">
+            Ha ocurrido un error no controlado. Ver consola del navegador para más detalles.
+        </environment>
+        <a href="" class="reload">Recargar</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Radzen JS -->
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    
+    <!-- Blazor Server JS -->
+    <script src="_framework/blazor.server.js"></script>
+    
+    <!-- Scripts personalizados -->
+    <script>
+        // Función para alternar tema
+        window.toggleTheme = (theme) => {
+            document.body.className = theme === 'dark' ? 'dark-theme' : '';
+            localStorage.setItem('theme', theme);
+        };
+
+        // Función para mostrar información sobre Blazor
+        window.showBlazorInfo = () => {
+            alert('🚀 DenounceBeasts Blazor Server\\n\\n' +
+                  '• Renderizado del lado del servidor\\n' +
+                  '• Comunicación en tiempo real con SignalR\\n' +
+                  '• Componentes interactivos con C#\\n' +
+                  '• Validación automática de formularios\\n' +
+                  '• Gestión de estado centralizada');
+        };
+
+        // Inicializar tema guardado
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                toggleTheme(savedTheme);
+            }
+        });
+
+        // Mejorar la experiencia de reconexión de Blazor
+        window.Blazor.start({
+            reconnectionHandler: {
+                onConnectionDown: () => {
+                    console.log('🔴 Conexión perdida con el servidor');
+                    // Mostrar indicador de reconexión
+                    const indicator = document.createElement('div');
+                    indicator.id = 'reconnection-indicator';
+                    indicator.innerHTML = '⚠️ Reconectando...';
+                    indicator.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: #ff6b6b;
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        z-index: 9999;
+                        font-size: 14px;
+                    `;
+                    document.body.appendChild(indicator);
+                },
+                onConnectionUp: () => {
+                    console.log('🟢 Conexión restaurada');
+                    // Remover indicador de reconexión
+                    const indicator = document.getElementById('reconnection-indicator');
+                    if (indicator) {
+                        indicator.remove();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

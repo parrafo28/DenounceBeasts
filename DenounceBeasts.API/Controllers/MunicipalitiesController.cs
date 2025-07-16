@@ -1,4 +1,5 @@
 ﻿using DenounceBeasts.Application.DTOs;
+using DenounceBeasts.Domain.Contracts;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure.Data;
 using DenounceBeasts.Infrastructure.Data.Repositories;
@@ -9,14 +10,12 @@ namespace DenounceBeasts.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class MunicipalitiesController : ControllerBase
-    {
-        private readonly DataContext _context;
-        private readonly UnitOfWork _unitOfWork;
+    { 
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MunicipalitiesController(DataContext context,
-            UnitOfWork unitOfWork)
-        {
-            _context = context;
+        public MunicipalitiesController( 
+            IUnitOfWork unitOfWork)
+        { 
             _unitOfWork = unitOfWork;
         }
 
@@ -25,6 +24,7 @@ namespace DenounceBeasts.API.Controllers
         {
             return Ok(await _unitOfWork.Municipalities.GetAllAsync());
         }
+
         [HttpGet]
         [Route("with-districts")]
         public async Task<IActionResult> GetMunicipalitiesWithDistricts()

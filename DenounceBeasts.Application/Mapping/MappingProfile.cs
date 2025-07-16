@@ -1,7 +1,7 @@
-﻿using DenounceBeasts.Application.DTOs;
+﻿
+using AutoMapper;
+using DenounceBeasts.Application.DTOs;
 using DenounceBeasts.Domain.Entities;
- 
-using AutoMapper; 
 
 namespace DenounceBeasts.Application.Mapping
 {
@@ -13,11 +13,14 @@ namespace DenounceBeasts.Application.Mapping
             CreateMap<Municipality, MunicipaltyDto>()
                 .ForMember(dest => dest.Districts, opt => opt.Ignore()).ReverseMap();
             //CreateMap<MunicipaltyDto, Municipality>().ReverseMap();
+            CreateMap<Municipality, CreateMunicipaltyDto>().ReverseMap();
 
             // District mappings
+            CreateMap<District, CreateDistrictDto>().ReverseMap(); 
+            CreateMap<District, UpdateDistrictDto>().ReverseMap();
             CreateMap<District, DistrictDto>()
                 .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name)).ReverseMap();
-           // CreateMap<DistrictDto, District>().ReverseMap();
+            // CreateMap<DistrictDto, District>().ReverseMap();
         }
     }
 }

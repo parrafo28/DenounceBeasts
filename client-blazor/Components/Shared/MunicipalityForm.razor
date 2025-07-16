@@ -1,0 +1,136 @@
+@inject ApiService ApiService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenTemplateForm Data="@Municipality" Submit="@OnSubmit">
+    <div class="row">
+        <div class="col-12">
+            <RadzenFieldset Text="Información del Municipio">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <RadzenLabel Text="Nombre del Municipio:" />
+                        <RadzenTextBox @bind-Value="Municipality.Name" 
+                                     Placeholder="Ingrese el nombre del municipio"
+                                     MaxLength="100"
+                                     Class="w-100" />
+                        <RadzenRequiredValidator Text="El nombre es requerido" Component="Municipality.Name" />
+                    </div>
+                    
+                    <div class="col-md-12 mb-3">
+                        <RadzenLabel Text="Código:" />
+                        <RadzenTextBox @bind-Value="Municipality.Code" 
+                                     Placeholder="Ingrese el código del municipio"
+                                     MaxLength="10"
+                                     Class="w-100" />
+                        <RadzenRequiredValidator Text="El código es requerido" Component="Municipality.Code" />
+                    </div>
+                    
+                    <div class="col-md-12 mb-3">
+                        <RadzenCheckBox @bind-Value="Municipality.IsActive" Name="IsActive" />
+                        <RadzenLabel Text="Municipio Activo" Component="IsActive" Style="margin-left: 8px;" />
+                    </div>
+                </div>
+            </RadzenFieldset>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="d-flex gap-2">
+                <RadzenButton ButtonType="ButtonType.Submit" 
+                            ButtonStyle="ButtonStyle.Success" 
+                            Icon="save" 
+                            Text="@(Municipality.Id == 0 ? "Crear Municipio" : "Actualizar Municipio")"
+                            IsBusy="@isSubmitting" />
+                <RadzenButton ButtonType="ButtonType.Button" 
+                            ButtonStyle="ButtonStyle.Light" 
+                            Icon="cancel" 
+                            Text="Cancelar" 
+                            Click="@Cancel" />
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Municipality Municipality { get; set; } = new();
+    
+    private bool isSubmitting = false;
+
+    private async Task OnSubmit()
+    {
+        try
+        {
+            isSubmitting = true;
+            
+            // Validar modelo
+            if (!Municipality.IsValid())
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Warning,
+                    Summary = "Validación",
+                    Detail = "Por favor complete todos los campos requeridos",
+                    Duration = 3000
+                });
+                return;
+            }
+            
+            Services.ApiResult result;
+            
+            if (Municipality.Id == 0)
+            {
+                // Crear nuevo municipio
+                result = await ApiService.CreateMunicipalityAsync(Municipality);
+            }
+            else
+            {
+                // Actualizar municipio existente
+                result = await ApiService.UpdateMunicipalityAsync(Municipality);
+            }
+            
+            if (result.Success)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = result.Message,
+                    Duration = 3000
+                });
+                
+                // Cerrar diálogo con resultado exitoso
+                DialogService.Close(true);
+            }
+            else
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = result.Message,
+                    Duration = 5000
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "Error interno: " + ex.Message,
+                Duration = 5000
+            });
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(false);
+    }
+}

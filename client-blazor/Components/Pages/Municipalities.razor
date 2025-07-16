@@ -1,0 +1,353 @@
+@page "/municipalities"
+@inject ApiService ApiService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Municipios - DenounceBeasts Blazor</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-geo-alt"></i> Gestión de Municipios
+        </h2>
+        <RadzenButton ButtonType="ButtonType.Button" 
+                    ButtonStyle="ButtonStyle.Success" 
+                    Icon="add" 
+                    Text="Agregar Municipio" 
+                    Click="@ShowCreateDialog" />
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="Buscar por nombre o código:" />
+                    <RadzenTextBox @bind-Value="searchFilter" 
+                                 Placeholder="Ingrese texto a buscar..."
+                                 @oninput="OnSearchChanged" />
+                </div>
+                <div class="col-md-3">
+                    <RadzenLabel Text="Estado:" />
+                    <RadzenDropDown @bind-Value="statusFilter" 
+                                  Data="@statusOptions" 
+                                  ValueProperty="Value" 
+                                  TextProperty="Text"
+                                  Change="@OnStatusChanged" />
+                </div>
+                <div class="col-md-2">
+                    <RadzenLabel Text="Elementos por página:" />
+                    <RadzenDropDown @bind-Value="pageSize" 
+                                  Data="@pageSizeOptions" 
+                                  Change="@OnPageSizeChanged" />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <RadzenButton ButtonType="ButtonType.Button" 
+                                ButtonStyle="ButtonStyle.Primary" 
+                                Icon="search" 
+                                Text="Aplicar Filtros" 
+                                Click="@ApplyFilters" />
+                    <RadzenButton ButtonType="ButtonType.Button" 
+                                ButtonStyle="ButtonStyle.Light" 
+                                Icon="clear" 
+                                Text="Limpiar" 
+                                Click="@ClearFilters" 
+                                Class="ms-2" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Municipios -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-table"></i> Lista de Municipios
+                <RadzenBadge BadgeStyle="BadgeStyle.Primary" Text="@filteredMunicipalities.Count().ToString()" Class="ms-2" />
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+                    <p class="mt-3 text-muted">Cargando municipios...</p>
+                </div>
+            }
+            else if (filteredMunicipalities.Any())
+            {
+                <RadzenDataGrid @ref="grid" 
+                              Data="@filteredMunicipalities" 
+                              AllowPaging="true" 
+                              PageSize="@pageSize"
+                              AllowSorting="true" 
+                              AllowFiltering="false"
+                              PagerHorizontalAlign="HorizontalAlign.Center"
+                              TItem="Municipality">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Municipality" Property="Id" Title="ID" Width="80px" />
+                        <RadzenDataGridColumn TItem="Municipality" Property="Name" Title="Nombre" />
+                        <RadzenDataGridColumn TItem="Municipality" Property="Code" Title="Código" Width="120px">
+                            <Template Context="municipality">
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="@municipality.Code" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Municipality" Property="IsActive" Title="Estado" Width="120px">
+                            <Template Context="municipality">
+                                @if (municipality.IsActive)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="Activo" />
+                                }
+                                else
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="Inactivo" />
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Municipality" Property="CreatedAt" Title="Creado" Width="120px">
+                            <Template Context="municipality">
+                                @if (municipality.CreatedAt.HasValue)
+                                {
+                                    <small class="text-muted">@municipality.CreatedAt.Value.ToString("dd/MM/yyyy")</small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">N/A</small>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Municipality" Title="Acciones" Width="200px" Sortable="false">
+                            <Template Context="municipality">
+                                <div class="d-flex gap-1">
+                                    <RadzenButton ButtonType="ButtonType.Button" 
+                                                ButtonStyle="ButtonStyle.Info" 
+                                                Icon="visibility" 
+                                                Size="ButtonSize.Small"
+                                                Click="@(() => ShowDetailsDialog(municipality))" />
+                                    <RadzenButton ButtonType="ButtonType.Button" 
+                                                ButtonStyle="ButtonStyle.Primary" 
+                                                Icon="edit" 
+                                                Size="ButtonSize.Small"
+                                                Click="@(() => ShowEditDialog(municipality))" />
+                                    <RadzenButton ButtonType="ButtonType.Button" 
+                                                ButtonStyle="ButtonStyle.Danger" 
+                                                Icon="delete" 
+                                                Size="ButtonSize.Small"
+                                                Click="@(() => ConfirmDelete(municipality))" />
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3 text-muted">No se encontraron municipios</h5>
+                    <p class="text-muted">
+                        @if (!string.IsNullOrEmpty(searchFilter) || statusFilter != "all")
+                        {
+                            <text>No hay municipios que coincidan con los filtros aplicados.</text>
+                        }
+                        else
+                        {
+                            <text>Aún no hay municipios registrados en el sistema.</text>
+                        }
+                    </p>
+                    <RadzenButton ButtonType="ButtonType.Button" 
+                                ButtonStyle="ButtonStyle.Primary" 
+                                Icon="add" 
+                                Text="Agregar Primer Municipio" 
+                                Click="@ShowCreateDialog" />
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private RadzenDataGrid<Municipality> grid = new();
+    private List<Municipality> municipalities = new();
+    private IEnumerable<Municipality> filteredMunicipalities = new List<Municipality>();
+    private bool isLoading = true;
+    
+    // Filtros
+    private string searchFilter = string.Empty;
+    private string statusFilter = "all";
+    private int pageSize = 10;
+    
+    private readonly List<dynamic> statusOptions = new()
+    {
+        new { Value = "all", Text = "Todos los estados" },
+        new { Value = "active", Text = "Activos" },
+        new { Value = "inactive", Text = "Inactivos" }
+    };
+    
+    private readonly List<int> pageSizeOptions = new() { 5, 10, 20, 50 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMunicipalities();
+    }
+
+    private async Task LoadMunicipalities()
+    {
+        try
+        {
+            isLoading = true;
+            municipalities = await ApiService.GetMunicipalitiesAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "Error al cargar municipios: " + ex.Message,
+                Duration = 5000
+            });
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = municipalities.AsEnumerable();
+        
+        // Filtro por texto
+        if (!string.IsNullOrEmpty(searchFilter))
+        {
+            filtered = filtered.Where(m => 
+                m.Name.Contains(searchFilter, StringComparison.OrdinalIgnoreCase) ||
+                m.Code.Contains(searchFilter, StringComparison.OrdinalIgnoreCase));
+        }
+        
+        // Filtro por estado
+        if (statusFilter == "active")
+        {
+            filtered = filtered.Where(m => m.IsActive);
+        }
+        else if (statusFilter == "inactive")
+        {
+            filtered = filtered.Where(m => !m.IsActive);
+        }
+        
+        filteredMunicipalities = filtered.ToList();
+        StateHasChanged();
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchFilter = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void OnStatusChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void OnPageSizeChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        searchFilter = string.Empty;
+        statusFilter = "all";
+        ApplyFilters();
+    }
+
+    private async Task ShowCreateDialog()
+    {
+        var result = await DialogService.OpenAsync<MunicipalityForm>("Agregar Municipio",
+            new Dictionary<string, object>() { { "Municipality", new Municipality() } },
+            new DialogOptions() { Width = "600px", Height = "400px" });
+        
+        if (result != null)
+        {
+            await LoadMunicipalities();
+        }
+    }
+
+    private async Task ShowEditDialog(Municipality municipality)
+    {
+        var result = await DialogService.OpenAsync<MunicipalityForm>("Editar Municipio",
+            new Dictionary<string, object>() { { "Municipality", municipality } },
+            new DialogOptions() { Width = "600px", Height = "400px" });
+        
+        if (result != null)
+        {
+            await LoadMunicipalities();
+        }
+    }
+
+    private async Task ShowDetailsDialog(Municipality municipality)
+    {
+        await DialogService.OpenAsync<MunicipalityDetails>("Detalles del Municipio",
+            new Dictionary<string, object>() { { "Municipality", municipality } },
+            new DialogOptions() { Width = "500px", Height = "350px" });
+    }
+
+    private async Task ConfirmDelete(Municipality municipality)
+    {
+        var result = await DialogService.Confirm(
+            $"¿Está seguro que desea eliminar el municipio '{municipality.Name}'?",
+            "Confirmar Eliminación",
+            new ConfirmOptions() { OkButtonText = "Sí", CancelButtonText = "No" });
+        
+        if (result == true)
+        {
+            await DeleteMunicipality(municipality);
+        }
+    }
+
+    private async Task DeleteMunicipality(Municipality municipality)
+    {
+        try
+        {
+            var result = await ApiService.DeleteMunicipalityAsync(municipality.Id);
+            
+            if (result.Success)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito",
+                    Detail = result.Message,
+                    Duration = 3000
+                });
+                
+                await LoadMunicipalities();
+            }
+            else
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = result.Message,
+                    Duration = 5000
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Error",
+                Detail = "Error al eliminar municipio: " + ex.Message,
+                Duration = 5000
+            });
+        }
+    }
+}

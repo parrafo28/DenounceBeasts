@@ -6,7 +6,6 @@ using DenounceBeasts.Domain.Contracts.Repositories;
 using DenounceBeasts.Infrastructure.Data;
 using DenounceBeasts.Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,11 +22,36 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddTransient<IMunicipaltyRepository, MunicipaltyRepository>();
 builder.Services.AddTransient<IDistrictService, DistrictService>();
 
-builder.Services.AddAutoMapper(typeof(MappingProfile)); 
-// add service in transient lifetime this means that a new instance of the service will be created every time it is requested
-//builder.Services.AddTransient<DistrictRepository>();
-// add service in singleton lifetime this means that a single instance of the service will be created and shared across the application
-//builder.Services.AddSingleton<DistrictRepository>();
+//var key = builder.Configuration["AutomapperLicenceKey"];
+var automapperKey = builder.Configuration["KeysConfigurations:AutomapperLicenceKey"];
+//builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => cfg.LicenseKey
+= automapperKey, typeof(MappingProfile));
+
+//var allowedOrigins = new string[]
+//{
+//    "https://localhost:3000", // URL del frontend en desarrollo
+//    "http://localhost:3000"   // URL del frontend en desarrollo sin HTTPS
+//};
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowLocalhost", policy =>
+//    {
+//        policy.WithOrigins(allowedOrigins)
+//              .AllowAnyMethod()
+//              .AllowAnyHeader();
+//    });
+//});
+// Configuración de CORS para permitir acceso desde el frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowEverybody", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 // Fixed: AddJsonOptions should be called on IMvcBuilder, not IServiceCollection
 builder.Services
@@ -50,6 +74,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS for all requests
+app.UseCors("AllowEverybody");
 
 app.UseAuthorization();
 

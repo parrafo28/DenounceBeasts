@@ -1,0 +1,117 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded">
+            <h1 class="display-4">
+                <i class="bi bi-building"></i> DenounceBeasts MVC
+            </h1>
+            <p class="lead">
+                Sistema de gestión territorial desarrollado con ASP.NET Core MVC y Entity Framework
+            </p>
+            <hr class="my-4">
+            <p>
+                Administra municipios y distritos de forma eficiente usando el patrón MVC clásico.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Tarjeta de Municipios -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-geo-alt text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="card-title">Gestión de Municipios</h5>
+                <p class="card-text">
+                    Administra la información de los municipios del país. 
+                    Crea, edita, visualiza y elimina registros de municipios.
+                </p>
+                <div class="mt-3">
+                    <a href="@Url.Action("Index", "Municipality")" class="btn btn-primary btn-custom me-2">
+                        <i class="bi bi-list"></i> Ver Municipios
+                    </a>
+                    <a href="@Url.Action("Create", "Municipality")" class="btn btn-success btn-custom">
+                        <i class="bi bi-plus-circle"></i> Agregar Municipio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Distritos -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-map text-success" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="card-title">Gestión de Distritos</h5>
+                <p class="card-text">
+                    Administra la información de los distritos asociados a cada municipio. 
+                    Mantén organizadas las divisiones territoriales.
+                </p>
+                <div class="mt-3">
+                    <a href="@Url.Action("Index", "District")" class="btn btn-primary btn-custom me-2">
+                        <i class="bi bi-list"></i> Ver Distritos
+                    </a>
+                    <a href="@Url.Action("Create", "District")" class="btn btn-success btn-custom">
+                        <i class="bi bi-plus-circle"></i> Agregar Distrito
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-info-circle"></i> Características del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-shield-check text-success"></i> Seguridad</h6>
+                        <ul class="list-unstyled">
+                            <li>• Tokens antifalsificación</li>
+                            <li>• Validación de modelos</li>
+                            <li>• Manejo de errores</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-layers text-primary"></i> Arquitectura</h6>
+                        <ul class="list-unstyled">
+                            <li>• Patrón MVC clásico</li>
+                            <li>• Separación de responsabilidades</li>
+                            <li>• Servicios para API</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-ui-radios text-warning"></i> Funcionalidades</h6>
+                        <ul class="list-unstyled">
+                            <li>• CRUD completo</li>
+                            <li>• Paginación y filtros</li>
+                            <li>• Interfaz responsive</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar mensaje de bienvenida
+        $(document).ready(function() {
+            console.log('🚀 DenounceBeasts MVC cargado correctamente');
+        });
+    </script>
+}

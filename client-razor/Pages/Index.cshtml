@@ -1,0 +1,192 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-success text-white p-5 rounded">
+            <h1 class="display-4">
+                <i class="bi bi-building"></i> DenounceBeasts Razor Pages
+            </h1>
+            <p class="lead">
+                Sistema de gestión territorial desarrollado con ASP.NET Core Razor Pages.
+                Experiencia de desarrollo simplificada con el patrón Page-Based.
+            </p>
+            <hr class="my-4 border-light">
+            <p>
+                Administra municipios y distritos usando Razor Pages, donde cada página maneja
+                su propia lógica de negocio y presenta los datos de forma cohesiva.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Tarjeta de Municipios -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-geo-alt-fill"></i> Gestión de Municipios
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-geo-alt text-success" style="font-size: 4rem;"></i>
+                </div>
+                <p class="card-text">
+                    Administra la información de los municipios del país usando Razor Pages.
+                    Cada operación CRUD está implementada como una página independiente.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="/Municipality" class="btn btn-success btn-custom">
+                        <i class="bi bi-list-ul"></i> Ver Municipios
+                    </a>
+                    <a href="/Municipality/Create" class="btn btn-outline-success btn-custom">
+                        <i class="bi bi-plus-circle"></i> Crear Nuevo
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> 
+                    Operaciones: Crear, Leer, Actualizar, Eliminar
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Distritos -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-map-fill"></i> Gestión de Distritos
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-map text-info" style="font-size: 4rem;"></i>
+                </div>
+                <p class="card-text">
+                    Administra la información de los distritos asociados a cada municipio.
+                    Interfaz intuitiva con validación del lado del servidor.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="/District" class="btn btn-info btn-custom">
+                        <i class="bi bi-list-ul"></i> Ver Distritos
+                    </a>
+                    <a href="/District/Create" class="btn btn-outline-info btn-custom">
+                        <i class="bi bi-plus-circle"></i> Crear Nuevo
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-light">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> 
+                    Relación: Cada distrito pertenece a un municipio
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-gear"></i> Características de Razor Pages</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-file-earmark-code text-success" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h6>Patrón Page-Based</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success"></i> Cada página maneja su lógica</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Código organizado por funcionalidad</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Menos complejidad de enrutamiento</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-shield-check text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h6>Validación y Seguridad</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success"></i> Validación del lado del servidor</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Tokens antifalsificación</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Manejo de errores robusto</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-ui-radios text-warning" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h6>Funcionalidades Avanzadas</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success"></i> Paginación automática</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Filtros dinámicos</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Interfaz responsive</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5><i class="bi bi-lightbulb"></i> Ventajas de Razor Pages</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-speedometer2 text-success"></i> Desarrollo Ágil</h6>
+                        <p class="text-muted">
+                            Desarrollo más rápido con menos código repetitivo (boilerplate).
+                            Cada página es auto-contenida.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-people text-info"></i> Fácil de Aprender</h6>
+                        <p class="text-muted">
+                            Curva de aprendizaje más suave para desarrolladores nuevos.
+                            Organización lógica por funcionalidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Inicialización específica del dashboard
+        $(document).ready(function() {
+            // Animación de entrada para las tarjetas
+            $('.card').hide().fadeIn(1000);
+            
+            // Efecto de hover mejorado
+            $('.card').hover(
+                function() {
+                    $(this).addClass('shadow-lg');
+                },
+                function() {
+                    $(this).removeClass('shadow-lg');
+                }
+            );
+            
+            // Mostrar toast de bienvenida
+            showSuccess('¡Bienvenido a DenounceBeasts Razor Pages!');
+        });
+    </script>
+}

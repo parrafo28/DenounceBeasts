@@ -1,0 +1,228 @@
+@model PaginatedResult<Municipality>
+@{
+    ViewData["Title"] = "Municipios";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-geo-alt"></i> Gestión de Municipios</h2>
+    <a href="@Url.Action("Create")" class="btn btn-success btn-custom">
+        <i class="bi bi-plus-circle"></i> Agregar Municipio
+    </a>
+</div>
+
+<!-- Filtros de búsqueda -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index")">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="searchTerm" class="form-label">Buscar por nombre o código</label>
+                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                           value="@ViewBag.SearchTerm" placeholder="Ingrese texto a buscar...">
+                </div>
+                <div class="col-md-3">
+                    <label for="isActive" class="form-label">Estado</label>
+                    <select class="form-select" id="isActive" name="isActive">
+                        <option value="">Todos los estados</option>
+                        <option value="true" @(ViewBag.IsActive == true ? "selected" : "")>Activos</option>
+                        <option value="false" @(ViewBag.IsActive == false ? "selected" : "")>Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="pageSize" class="form-label">Elementos por página</label>
+                    <select class="form-select" id="pageSize" name="pageSize">
+                        <option value="5" @(ViewBag.PageSize == 5 ? "selected" : "")>5</option>
+                        <option value="10" @(ViewBag.PageSize == 10 ? "selected" : "")>10</option>
+                        <option value="20" @(ViewBag.PageSize == 20 ? "selected" : "")>20</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de municipios -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-table"></i> Lista de Municipios
+            <span class="badge bg-primary ms-2">@Model.TotalItems elementos</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Data.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Código</th>
+                            <th>Estado</th>
+                            <th>Creado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var municipality in Model.Data)
+                        {
+                            <tr>
+                                <td>@municipality.Id</td>
+                                <td>
+                                    <strong>@municipality.Name</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@municipality.Code</span>
+                                </td>
+                                <td>
+                                    @if (municipality.IsActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (municipality.CreatedAt.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @municipality.CreatedAt.Value.ToString("dd/MM/yyyy")
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">N/A</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Details", new { id = municipality.Id })" 
+                                           class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = municipality.Id })" 
+                                           class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete('@Url.Action("Delete", new { id = municipality.Id })', '@municipality.Name')" 
+                                                title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Paginación de municipios">
+                    <ul class="pagination justify-content-center">
+                        <!-- Página anterior -->
+                        @if (Model.HasPreviousPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { 
+                                    page = Model.CurrentPage - 1, 
+                                    searchTerm = ViewBag.SearchTerm, 
+                                    isActive = ViewBag.IsActive,
+                                    pageSize = ViewBag.PageSize 
+                                })">
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+                        }
+                        
+                        <!-- Números de página -->
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { 
+                                    page = i, 
+                                    searchTerm = ViewBag.SearchTerm, 
+                                    isActive = ViewBag.IsActive,
+                                    pageSize = ViewBag.PageSize 
+                                })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                        
+                        <!-- Página siguiente -->
+                        @if (Model.HasNextPage)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { 
+                                    page = Model.CurrentPage + 1, 
+                                    searchTerm = ViewBag.SearchTerm, 
+                                    isActive = ViewBag.IsActive,
+                                    pageSize = ViewBag.PageSize 
+                                })">
+                                    Siguiente <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+                
+                <!-- Información de paginación -->
+                <div class="text-center text-muted">
+                    <small>
+                        Mostrando @((Model.CurrentPage - 1) * Model.PageSize + 1) a @Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalItems) 
+                        de @Model.TotalItems elementos
+                    </small>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">No se encontraron municipios</h5>
+                <p class="text-muted">
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm?.ToString()) || ViewBag.IsActive != null)
+                    {
+                        <text>No hay municipios que coincidan con los filtros aplicados.</text>
+                    }
+                    else
+                    {
+                        <text>Aún no hay municipios registrados en el sistema.</text>
+                    }
+                </p>
+                <a href="@Url.Action("Create")" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Primer Municipio
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-enviar formulario al cambiar el select de elementos por página
+        $(document).ready(function() {
+            $('#pageSize').change(function() {
+                $(this).closest('form').submit();
+            });
+        });
+    </script>
+}

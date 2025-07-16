@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DenounceBeasts - Administración de Municipios y Distritos</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+     
+    <link rel="stylesheet"  href="css/site.css">
+ 
+</head>
+<body>
+    <header class="header-bg">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fw-bold mb-0">
+                        <i class="bi bi-building"></i> DenounceBeasts
+                    </h1>
+                    <p class="lead mb-0">Sistema de Administración de Denuncias Ciudadanas</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    Otro Contenido
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="municipalities-tab" data-bs-toggle="tab" data-bs-target="#municipalities" type="button" role="tab">
+                    <i class="bi bi-geo-alt"></i> Municipios
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="districts-tab" data-bs-toggle="tab" data-bs-target="#districts" type="button" role="tab">
+                    <i class="bi bi-map"></i> Distritos
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-4" id="mainTabsContent">
+            <div class="tab-pane fade show active" id="municipalities" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-geo-alt"></i> Gestión de Municipios
+                        </h5>
+                        <button class="btn btn-success btn-custom" id="addMunicipalityBtn">
+                            <i class="bi bi-plus-circle"></i> Agregar Municipio
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="municipalitySearchInput" placeholder="Buscar por nombre...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="municipalityStatusFilter">
+                                    <option value="">Todos los estados</option>
+                                    <option value="true">Activos</option>
+                                    <option value="false">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary" id="clearMunicipalityFilters">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Código</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="municipalitiesTableBody">
+                                    <!-- data comes here dinamically-->
+                                </tbody>
+                            </table>
+                        </div>
+                         
+                        <nav aria-label="Paginación de municipios">
+                            <ul class="pagination justify-content-center" id="municipalityPagination">
+                                <!-- pagination buttons generate dinamically -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="tab-pane fade" id="districts" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-map"></i> Gestión de Distritos
+                        </h5>
+                        <button class="btn btn-success btn-custom" id="addDistrictBtn">
+                            <i class="bi bi-plus-circle"></i> Agregar Distrito
+                        </button>
+                    </div>
+                    <div class="card-body"> 
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="districtSearchInput" placeholder="Buscar por nombre...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="districtMunicipalityFilter">
+                                    <option value="">Todos los municipios</option> 
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="districtStatusFilter">
+                                    <option value="">Todos</option>
+                                    <option value="true">Activos</option>
+                                    <option value="false">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary" id="clearDistrictFilters">
+                                    <i class="bi bi-x-circle"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                         
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Código</th>
+                                        <th>Municipio</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="districtsTableBody"> 
+                                </tbody>
+                            </table>
+                        </div>
+                         
+                        <nav aria-label="Paginación de distritos">
+                            <ul class="pagination justify-content-center" id="districtPagination"> 
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="modal fade" id="municipalityModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="municipalityModalTitle">
+                        <i class="bi bi-geo-alt"></i> Agregar Municipio
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="municipalityForm">
+                        <input type="hidden" id="municipalityId">
+                        <div class="mb-3">
+                            <label for="municipalityName" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="municipalityName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="municipalityCode" class="form-label">Código *</label>
+                            <input type="text" class="form-control" id="municipalityCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="municipalityIsActive" checked>
+                                <label class="form-check-label" for="municipalityIsActive">
+                                    Activo
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveMunicipalityBtn">
+                        <i class="bi bi-check-circle"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="modal fade" id="districtModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="districtModalTitle">
+                        <i class="bi bi-map"></i> Agregar Distrito
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="districtForm">
+                        <input type="hidden" id="districtId">
+                        <div class="mb-3">
+                            <label for="districtName" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="districtName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="districtCode" class="form-label">Código *</label>
+                            <input type="text" class="form-control" id="districtCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="districtMunicipalityId" class="form-label">Municipio *</label>
+                            <select class="form-select" id="districtMunicipalityId" required>
+                                <option value="">Seleccione un municipio</option>
+                                <!-- options loads dinamically-->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="districtIsActive" checked>
+                                <label class="form-check-label" for="districtIsActive">
+                                    Activo
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveDistrictBtn">
+                        <i class="bi bi-check-circle"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/app-basic.js"></script>
+   <!--  <script src="js/app.js"></script> -->
+    
+</body>
+</html>

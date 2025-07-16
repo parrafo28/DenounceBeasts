@@ -1,0 +1,246 @@
+@page "/"
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Dashboard - DenounceBeasts Blazor</PageTitle>
+
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-5 fw-bold mb-0">
+                                <i class="bi bi-building"></i> DenounceBeasts Blazor
+                            </h1>
+                            <p class="lead mb-0">
+                                Sistema de gestión territorial desarrollado con Blazor Server
+                            </p>
+                            <p class="mb-0 opacity-75">
+                                Componentes interactivos del lado del servidor con SignalR
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="d-flex flex-column align-items-end">
+                                <div class="badge bg-light text-primary fs-6 mb-2">
+                                    <i class="bi bi-server"></i> Blazor Server
+                                </div>
+                                <div class="badge bg-light text-primary fs-6">
+                                    <i class="bi bi-lightning"></i> Real-time
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="mt-2">@totalMunicipalities</h3>
+                    <p class="text-muted mb-0">Total Municipios</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-map text-success" style="font-size: 2.5rem;"></i>
+                    <h3 class="mt-2">@totalDistricts</h3>
+                    <p class="text-muted mb-0">Total Distritos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-info" style="font-size: 2.5rem;"></i>
+                    <h3 class="mt-2">@activeMunicipalities</h3>
+                    <p class="text-muted mb-0">Municipios Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-warning" style="font-size: 2.5rem;"></i>
+                    <h3 class="mt-2">@activeDistricts</h3>
+                    <p class="text-muted mb-0">Distritos Activos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-geo-alt"></i> Gestión de Municipios
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Administra la información de los municipios usando componentes Blazor
+                        interactivos con validación en tiempo real.
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <RadzenButton ButtonType="ButtonType.Button" 
+                                    ButtonStyle="ButtonStyle.Primary" 
+                                    Icon="list" 
+                                    Text="Ver Municipios" 
+                                    Click="@(() => NavigateTo("/municipalities"))" />
+                        <RadzenButton ButtonType="ButtonType.Button" 
+                                    ButtonStyle="ButtonStyle.Success" 
+                                    Icon="add" 
+                                    Text="Crear Municipio" 
+                                    Click="@(() => NavigateTo("/municipalities/create"))" />
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">
+                        <i class="bi bi-lightning"></i> Actualización en tiempo real
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-map"></i> Gestión de Distritos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Administra la información de los distritos con componentes Blazor
+                        que se sincronizan automáticamente con el servidor.
+                    </p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <RadzenButton ButtonType="ButtonType.Button" 
+                                    ButtonStyle="ButtonStyle.Primary" 
+                                    Icon="list" 
+                                    Text="Ver Distritos" 
+                                    Click="@(() => NavigateTo("/districts"))" />
+                        <RadzenButton ButtonType="ButtonType.Button" 
+                                    ButtonStyle="ButtonStyle.Success" 
+                                    Icon="add" 
+                                    Text="Crear Distrito" 
+                                    Click="@(() => NavigateTo("/districts/create"))" />
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">
+                        <i class="bi bi-arrows-fullscreen"></i> Componentes interactivos
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Características de Blazor -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>
+                        <i class="bi bi-star"></i> Características de Blazor Server
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-server text-primary" style="font-size: 3rem;"></i>
+                            </div>
+                            <h6>Rendering del Servidor</h6>
+                            <p class="text-muted">
+                                Los componentes se ejecutan en el servidor y se envían al cliente
+                                a través de SignalR para una experiencia fluida.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-lightning text-warning" style="font-size: 3rem;"></i>
+                            </div>
+                            <h6>Interactividad en Tiempo Real</h6>
+                            <p class="text-muted">
+                                Actualizaciones instantáneas sin necesidad de recargar la página.
+                                Perfecto para aplicaciones colaborativas.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-code-square text-success" style="font-size: 3rem;"></i>
+                            </div>
+                            <h6>C# en el Cliente</h6>
+                            <p class="text-muted">
+                                Escribe lógica de frontend usando C# en lugar de JavaScript.
+                                Comparte código entre cliente y servidor.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int totalMunicipalities = 0;
+    private int totalDistricts = 0;
+    private int activeMunicipalities = 0;
+    private int activeDistricts = 0;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatistics();
+        isLoading = false;
+    }
+
+    private async Task LoadStatistics()
+    {
+        try
+        {
+            // Obtener datos de municipios y distritos para estadísticas
+            var municipalities = await ApiService.GetMunicipalitiesAsync();
+            var districts = await ApiService.GetDistrictsAsync();
+            
+            // Calcular estadísticas
+            totalMunicipalities = municipalities.Count;
+            totalDistricts = districts.Count;
+            activeMunicipalities = municipalities.Count(m => m.IsActive);
+            activeDistricts = districts.Count(d => d.IsActive);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar estadísticas: {ex.Message}");
+            // Mantener valores por defecto
+        }
+    }
+
+    private async Task NavigateTo(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.location.href", url);
+    }
+
+    private async Task RefreshStatistics()
+    {
+        isLoading = true;
+        StateHasChanged();
+        
+        await LoadStatistics();
+        
+        isLoading = false;
+        StateHasChanged();
+    }
+}
