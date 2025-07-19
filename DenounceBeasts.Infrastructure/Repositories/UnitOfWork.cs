@@ -7,25 +7,53 @@ namespace DenounceBeasts.Infrastructure.Repositories
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        //private readonly IMunicipalityRepository _municipalityRepository;
-        //private readonly ISectorRepository _sectorRepository;
-        //private readonly IRepository<Status> _statusRepository;
+        
         public IRepository<Status> Status { get; }
         public IMunicipalityRepository Municipalities { get; }
         public ISectorRepository Sectors { get; }
+        public IRepository<Complaint> Complaints { get; }
+        public IRepository<User> Users { get; }
+        public IRepository<ComplaintType> ComplaintTypes { get; }
+        public IRepository<Comment> Comments { get; }
+        public IRepository<Vote> Votes { get; }
+        public IRepository<Attachment> Attachments { get; }
+        public IRepository<Role> Roles { get; }
+        public IRepository<UserRole> UserRoles { get; }
+        public IRepository<Notification> Notifications { get; }
+        public IRepository<ComplaintHistory> ComplaintHistories { get; }
+        public IRepository<UserProfile> UserProfiles { get; }
 
         public UnitOfWork(ApplicationDbContext context,
             IMunicipalityRepository municipalityRepository,
             ISectorRepository sectorRepository,
-          IRepository<Status> statusRepository)
+            IRepository<Status> statusRepository,
+            IRepository<Complaint> complaintRepository,
+            IRepository<User> userRepository,
+            IRepository<ComplaintType> complaintTypeRepository,
+            IRepository<Comment> commentRepository,
+            IRepository<Vote> voteRepository,
+            IRepository<Attachment> attachmentRepository,
+            IRepository<Role> roleRepository,
+            IRepository<UserRole> userRoleRepository,
+            IRepository<Notification> notificationRepository,
+            IRepository<ComplaintHistory> complaintHistoryRepository,
+            IRepository<UserProfile> userProfileRepository)
         {
             _context = context;
-            //_municipalityRepository = municipalityRepository;
-            //_sectorRepository = sectorRepository;
-            //_statusRepository = statusRepository;
             Sectors = sectorRepository;
             Status = statusRepository;
-            Municipalities = municipalityRepository; 
+            Municipalities = municipalityRepository;
+            Complaints = complaintRepository;
+            Users = userRepository;
+            ComplaintTypes = complaintTypeRepository;
+            Comments = commentRepository;
+            Votes = voteRepository;
+            Attachments = attachmentRepository;
+            Roles = roleRepository;
+            UserRoles = userRoleRepository;
+            Notifications = notificationRepository;
+            ComplaintHistories = complaintHistoryRepository;
+            UserProfiles = userProfileRepository;
         }
 
 
@@ -56,6 +84,11 @@ namespace DenounceBeasts.Infrastructure.Repositories
         public async Task CompleteAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
         }
 
         public async Task BeginTransactionAsync()

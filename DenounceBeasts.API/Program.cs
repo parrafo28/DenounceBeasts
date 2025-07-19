@@ -1,5 +1,5 @@
 using DenounceBeasts.Application.Contracts;
-using DenounceBeasts.Application.MapingProfiles;
+using DenounceBeasts.Application.Mapping;
 using DenounceBeasts.Application.Services;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure;
@@ -25,19 +25,46 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 //builder.Services.AddTransient<SectorRepository>();
 //builder.Services.AddTransient<GenericRepository<Status>>();
 
+// Repository registrations
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<MunicipalityRepository>();
 builder.Services.AddScoped<SectorRepository>();
 builder.Services.AddScoped<GenericRepository<Status>>();
+builder.Services.AddScoped<GenericRepository<Complaint>>();
+builder.Services.AddScoped<GenericRepository<User>>();
+builder.Services.AddScoped<GenericRepository<ComplaintType>>();
+builder.Services.AddScoped<GenericRepository<Comment>>();
+builder.Services.AddScoped<GenericRepository<Vote>>();
+builder.Services.AddScoped<GenericRepository<Attachment>>();
+builder.Services.AddScoped<GenericRepository<Role>>();
+builder.Services.AddScoped<GenericRepository<UserRole>>();
+builder.Services.AddScoped<GenericRepository<Notification>>();
+builder.Services.AddScoped<GenericRepository<ComplaintHistory>>();
+builder.Services.AddScoped<GenericRepository<UserProfile>>();
 
+// Interface registrations
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-//builder.Services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
 builder.Services.AddScoped<IMunicipalityRepository, MunicipalityForzandoTheMingoRepository>();
 builder.Services.AddScoped<ISectorRepository, SectorRepository>();
 builder.Services.AddScoped<IRepository<Status>, GenericRepository<Status>>();
+builder.Services.AddScoped<IRepository<Complaint>, GenericRepository<Complaint>>();
+builder.Services.AddScoped<IRepository<User>, GenericRepository<User>>();
+builder.Services.AddScoped<IRepository<ComplaintType>, GenericRepository<ComplaintType>>();
+builder.Services.AddScoped<IRepository<Comment>, GenericRepository<Comment>>();
+builder.Services.AddScoped<IRepository<Vote>, GenericRepository<Vote>>();
+builder.Services.AddScoped<IRepository<Attachment>, GenericRepository<Attachment>>();
+builder.Services.AddScoped<IRepository<Role>, GenericRepository<Role>>();
+builder.Services.AddScoped<IRepository<UserRole>, GenericRepository<UserRole>>();
+builder.Services.AddScoped<IRepository<Notification>, GenericRepository<Notification>>();
+builder.Services.AddScoped<IRepository<ComplaintHistory>, GenericRepository<ComplaintHistory>>();
+builder.Services.AddScoped<IRepository<UserProfile>, GenericRepository<UserProfile>>();
 
+// Service registrations
 builder.Services.AddScoped<ISectorService, SectorService>();
 builder.Services.AddScoped<IMunicipalityService, MunicipalityService>();
+builder.Services.AddScoped<IComplaintService, ComplaintService>();
+builder.Services.AddScoped<IStatusService, StatusService>();
+builder.Services.AddScoped<IComplaintTypeService, ComplaintTypeService>();
 
 var automapperLicence = builder.Configuration.GetSection("KeysConfigurations:AutomapperLicenceKey").Value;
 var automapperLicence2 = builder.Configuration.GetSection("AutomapperLicenceKey").Value;

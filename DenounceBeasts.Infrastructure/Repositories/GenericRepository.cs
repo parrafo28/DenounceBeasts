@@ -59,5 +59,28 @@ namespace DenounceBeasts.Infrastructure.Repositories
                 : await _context.Set<T>().CountAsync(predicate);
         }
 
+        public async Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().Where(predicate).ToListAsync();
+        }
+
+        public async Task<List<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> predicate = null)
+        {
+            var query = _context.Set<T>().AsQueryable();
+            
+            if (predicate != null)
+                query = query.Where(predicate);
+            
+            return await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+        }
+
     }
 }
