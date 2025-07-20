@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using DenounceBeasts.Application.Contracts;
 using DenounceBeasts.Application.DTOs;
 
@@ -6,6 +7,7 @@ namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ComplaintsController : ControllerBase
     {
         private readonly IComplaintService _complaintService;
@@ -16,6 +18,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ComplaintDto>>> GetAll()
         {
             try
@@ -30,6 +33,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<ComplaintDto>> GetById(int id)
         {
             try
@@ -88,6 +92,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -178,6 +183,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpPost("{id}/status")]
+        [Authorize(Policy = "ModeratorOrAdmin")]
         public async Task<ActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest request)
         {
             try

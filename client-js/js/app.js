@@ -8,6 +8,10 @@ let complaintTypes = [];
 let statuses = [];
 let complaints = [];
 
+// Authentication variables
+let currentUser = null;
+let authToken = null;
+
 // Paginación
 let currentPage = {
     complaints: 1,
@@ -57,11 +61,111 @@ function formatDate(dateString) {
     });
 }
 
+// Authentication functions
+function getAuthHeaders() {
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+    
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
+    return headers;
+}
+
+function saveAuthData(token, user) {
+    authToken = token;
+    currentUser = user;
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+function loadAuthData() {
+    authToken = localStorage.getItem('authToken');
+    const userStr = localStorage.getItem('currentUser');
+    if (userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+}
+
+function clearAuthData() {
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+}
+
+function isAuthenticated() {
+    return authToken && currentUser;
+}
+
+async function login(email, password) {
+    try {
+        showLoading();
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al iniciar sesión');
+        }
+
+        const authData = await response.json();
+        saveAuthData(authData.token, authData.user);
+        
+        hideLoading();
+        showSuccess('Sesión iniciada correctamente');
+        updateUI();
+        return true;
+    } catch (error) {
+        hideLoading();
+        showError('Error al iniciar sesión: ' + error.message);
+        return false;
+    }
+}
+
+async function logout() {
+    clearAuthData();
+    updateUI();
+    showSuccess('Sesión cerrada correctamente');
+}
+
+function updateUI() {
+    const loginSection = document.getElementById('login-section');
+    const mainContent = document.getElementById('main-content');
+    const userInfo = document.getElementById('user-info');
+    
+    if (isAuthenticated()) {
+        if (loginSection) loginSection.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
+        if (userInfo) {
+            userInfo.innerHTML = `
+                <div class="user-welcome">
+                    <span>Bienvenido, ${currentUser.firstName} ${currentUser.lastName}</span>
+                    <button onclick="logout()" class="btn btn-secondary btn-sm">Cerrar Sesión</button>
+                </div>
+            `;
+        }
+    } else {
+        if (loginSection) loginSection.style.display = 'block';
+        if (mainContent) mainContent.style.display = 'none';
+        if (userInfo) userInfo.innerHTML = '';
+    }
+}
+
 // Funciones de API - Municipalities
 async function fetchMunicipalities() {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE_URL}/api/municipalities`);
+        const response = await fetch(`${API_BASE_URL}/api/municipalities`, {
+            headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
             throw new Error('Error al obtener municipios');
@@ -82,9 +186,7 @@ async function createMunicipality(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/municipalities`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -108,9 +210,7 @@ async function updateMunicipality(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/municipalities/${data.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -133,7 +233,8 @@ async function deleteMunicipality(id) {
     try {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/municipalities/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         
         if (!response.ok) {
@@ -155,7 +256,9 @@ async function deleteMunicipality(id) {
 async function fetchSectors() {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE_URL}/api/sectors`);
+        const response = await fetch(`${API_BASE_URL}/api/sectors`, {
+            headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
             throw new Error('Error al obtener sectores');
@@ -176,9 +279,7 @@ async function createSector(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/sectors`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -202,9 +303,7 @@ async function updateSector(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/sectors/${data.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -227,7 +326,8 @@ async function deleteSector(id) {
     try {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/sectors/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         
         if (!response.ok) {
@@ -249,7 +349,9 @@ async function deleteSector(id) {
 async function fetchComplaintTypes() {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE_URL}/api/complainttypes`);
+        const response = await fetch(`${API_BASE_URL}/api/complainttypes`, {
+            headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
             throw new Error('Error al obtener tipos de denuncia');
@@ -270,9 +372,7 @@ async function createComplaintType(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complainttypes`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -296,9 +396,7 @@ async function updateComplaintType(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complainttypes/${data.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -321,7 +419,8 @@ async function deleteComplaintType(id) {
     try {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complainttypes/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         
         if (!response.ok) {
@@ -343,7 +442,9 @@ async function deleteComplaintType(id) {
 async function fetchStatuses() {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE_URL}/api/status`);
+        const response = await fetch(`${API_BASE_URL}/api/status`, {
+            headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
             throw new Error('Error al obtener estados');
@@ -364,9 +465,7 @@ async function createStatus(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/status`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -390,9 +489,7 @@ async function updateStatus(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/status/${data.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -415,7 +512,8 @@ async function deleteStatus(id) {
     try {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/status/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         
         if (!response.ok) {
@@ -437,7 +535,9 @@ async function deleteStatus(id) {
 async function fetchComplaints() {
     try {
         showLoading();
-        const response = await fetch(`${API_BASE_URL}/api/complaints`);
+        const response = await fetch(`${API_BASE_URL}/api/complaints`, {
+            headers: getAuthHeaders()
+        });
         
         if (!response.ok) {
             throw new Error('Error al obtener denuncias');
@@ -458,9 +558,7 @@ async function createComplaint(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complaints`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -484,9 +582,7 @@ async function updateComplaint(data) {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complaints/${data.id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(data)
         });
         
@@ -509,7 +605,8 @@ async function deleteComplaint(id) {
     try {
         showLoading();
         const response = await fetch(`${API_BASE_URL}/api/complaints/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         
         if (!response.ok) {

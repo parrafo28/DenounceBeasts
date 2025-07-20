@@ -1,12 +1,14 @@
 ﻿using DenounceBeasts.Application.Contracts;
 using DenounceBeasts.Application.DTOs;
 using DenounceBeasts.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class SectorsController : ControllerBase
     {
         private readonly ISectorService _sectorService;
@@ -34,6 +36,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSectors()
         {
             // var sectors = await _sectorRepository.GetAllSectorsAsync();
@@ -46,6 +49,7 @@ namespace DenounceBeasts.API.Controllers
 
         [HttpGet]
         [Route("with-municipality")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetSectorsWithMunicipality()
         {
             //var sectors = await _unitOfWork.Sectors.GetSectorWithTheirMunicipalityAsync();

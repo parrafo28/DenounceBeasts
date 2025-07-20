@@ -7,6 +7,9 @@ using DenounceBeasts.Infrastructure.Repositories;
 using DenounceBeasts.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,11 +84,45 @@ builder.Services.AddScoped<IMunicipalityService, MunicipalityService>();
 builder.Services.AddScoped<IComplaintService, ComplaintService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IComplaintTypeService, ComplaintTypeService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var automapperLicence = builder.Configuration.GetSection("KeysConfigurations:AutomapperLicenceKey").Value;
 var automapperLicence2 = builder.Configuration.GetSection("AutomapperLicenceKey").Value;
 //builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Services.AddAutoMapper(cfg => cfg.LicenseKey = automapperLicence, typeof(MappingProfile));
+
+// Configure JWT Authentication
+var jwtSecretKey = builder.Configuration.GetSection("JwtSettings:SecretKey").Value;
+if (string.IsNullOrEmpty(jwtSecretKey))
+{
+    throw new InvalidOperationException("JWT SecretKey is not configured in appsettings");
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration.GetSection("JwtSettings:Issuer").Value ?? "DenounceBeasts",
+        ValidAudience = builder.Configuration.GetSection("JwtSettings:Audience").Value ?? "DenounceBeasts-Users",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Administrador"));
+    options.AddPolicy("ModeratorOrAdmin", policy => policy.RequireRole("Moderador", "Administrador"));
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -108,6 +145,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

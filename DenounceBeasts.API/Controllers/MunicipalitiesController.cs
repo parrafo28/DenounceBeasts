@@ -2,12 +2,14 @@
 using DenounceBeasts.Application.DTOs;
 using DenounceBeasts.Domain.Entities;
 using DenounceBeasts.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class MunicipalitiesController : ControllerBase
     {
         private readonly IMunicipalityService _municipalityService;
@@ -32,6 +34,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetMunicipalities()
         {
             var municipalities = await _unitOfWork.Municipalities.GetAllAsync();
