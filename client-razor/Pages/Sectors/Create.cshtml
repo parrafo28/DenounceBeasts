@@ -1,0 +1,127 @@
+@page "/sectors/create"
+@model client_razor.Pages.Sectors.CreateModel
+@{
+    ViewData["Title"] = "Crear Sector";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a asp-page="Index" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <div>
+            <h1 class="h2 text-primary mb-0">@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">Completa la información del nuevo sector</p>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Información del Sector</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Sector.MunicipalityId" class="form-label">Municipio *</label>
+                                <select asp-for="Sector.MunicipalityId" class="form-select">
+                                    <option value="">Seleccionar municipio</option>
+                                    @foreach (var municipality in Model.Municipalities.Where(m => m.IsActive))
+                                    {
+                                        <option value="@municipality.Id" 
+                                                selected="@(Model.PreselectedMunicipalityId == municipality.Id)">
+                                            @municipality.Name
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Sector.MunicipalityId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Sector.Code" class="form-label">Código *</label>
+                                <input asp-for="Sector.Code" class="form-control" placeholder="Ejemplo: SEC-01" />
+                                <span asp-validation-for="Sector.Code" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Sector.Name" class="form-label">Nombre *</label>
+                                <input asp-for="Sector.Name" class="form-control" placeholder="Nombre del sector" />
+                                <span asp-validation-for="Sector.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="Sector.IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="Sector.IsActive" class="form-check-label">
+                                    Sector activo
+                                </label>
+                            </div>
+                            <span asp-validation-for="Sector.IsActive" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                            <a asp-page="Index" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Crear Sector
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        // Validación en tiempo real del código cuando se seleccione municipio
+        document.getElementById('Sector_MunicipalityId').addEventListener('change', function() {
+            var municipalityId = this.value;
+            if (municipalityId) {
+                validateCode();
+            }
+        });
+
+        document.getElementById('Sector_Code').addEventListener('blur', validateCode);
+
+        function validateCode() {
+            var code = document.getElementById('Sector_Code').value.trim();
+            var municipalityId = document.getElementById('Sector_MunicipalityId').value;
+            
+            if (code.length > 0 && municipalityId) {
+                // Aquí podrías agregar validación AJAX para verificar unicidad dentro del municipio
+                console.log('Validating code: ' + code + ' in municipality: ' + municipalityId);
+            }
+        }
+
+        // Mostrar mensajes de éxito/error
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    </script>
+}

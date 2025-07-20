@@ -1,0 +1,200 @@
+@page "/municipalities"
+@model client_razor.Pages.Municipalities.IndexModel
+@{
+    ViewData["Title"] = "Municipios";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 text-primary">@ViewData["Title"]</h1>
+            <p class="text-muted">Gestión de municipios del sistema</p>
+        </div>
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Agregar Municipio
+        </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="searchTerm" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                           value="@Model.SearchTerm" placeholder="Nombre o código...">
+                </div>
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Estado</label>
+                    <select class="form-select" id="statusFilter" name="statusFilter">
+                        <option value="">Todos</option>
+                        <option value="active" selected="@(Model.StatusFilter == "active")">Activos</option>
+                        <option value="inactive" selected="@(Model.StatusFilter == "inactive")">Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <a asp-page="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@Model.TotalCount</h5>
+                    <p class="card-text">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">@Model.ActiveCount</h5>
+                    <p class="card-text">Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">@Model.InactiveCount</h5>
+                    <p class="card-text">Inactivos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de municipios -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Lista de Municipios</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.Municipalities.Any())
+            {
+                <div class="text-center py-4">
+                    <p class="text-muted">No se encontraron municipios que coincidan con los criterios de búsqueda.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Sectores</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var municipality in Model.Municipalities)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold">@municipality.Code</span>
+                                    </td>
+                                    <td>@municipality.Name</td>
+                                    <td>
+                                        <span class="badge bg-info">@municipality.SectorsCount sectores</span>
+                                    </td>
+                                    <td>
+                                        @if (municipality.IsActive)
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        }
+                                    </td>
+                                    <td>@municipality.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-page="Details" asp-route-id="@municipality.Id" 
+                                               class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-page="Edit" asp-route-id="@municipality.Id" 
+                                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="Eliminar" onclick="confirmDelete(@municipality.Id, '@municipality.Name')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar el municipio <strong id="municipalityNameToDelete"></strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" style="display: inline;">
+                    <input type="hidden" name="id" id="municipalityIdToDelete" />
+                    <button type="submit" asp-page-handler="Delete" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('municipalityIdToDelete').value = id;
+            document.getElementById('municipalityNameToDelete').textContent = name;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        // Mostrar mensajes de éxito/error
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    </script>
+}

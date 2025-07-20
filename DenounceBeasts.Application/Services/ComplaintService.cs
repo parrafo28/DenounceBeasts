@@ -1,9 +1,8 @@
 using AutoMapper;
 using DenounceBeasts.Application.Contracts;
 using DenounceBeasts.Application.DTOs;
-using DenounceBeasts.Domain.Contracts;
 using DenounceBeasts.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using DenounceBeasts.Infrastructure.Contracts;
 
 namespace DenounceBeasts.Application.Services
 {
@@ -35,10 +34,10 @@ namespace DenounceBeasts.Application.Services
             var complaint = _mapper.Map<Complaint>(createDto);
             complaint.CreatedAt = DateTime.UtcNow;
             complaint.IsActive = true;
-            
+
             await _unitOfWork.Complaints.AddAsync(complaint);
             await _unitOfWork.SaveChangesAsync();
-            
+
             return _mapper.Map<ComplaintDto>(complaint);
         }
 
@@ -50,10 +49,10 @@ namespace DenounceBeasts.Application.Services
 
             _mapper.Map(updateDto, complaint);
             complaint.UpdatedAt = DateTime.UtcNow;
-            
+
             _unitOfWork.Complaints.Update(complaint);
             await _unitOfWork.SaveChangesAsync();
-            
+
             return _mapper.Map<ComplaintDto>(complaint);
         }
 
@@ -65,10 +64,10 @@ namespace DenounceBeasts.Application.Services
 
             complaint.IsActive = false;
             complaint.UpdatedAt = DateTime.UtcNow;
-            
+
             _unitOfWork.Complaints.Update(complaint);
             await _unitOfWork.SaveChangesAsync();
-            
+
             return true;
         }
 
@@ -99,7 +98,7 @@ namespace DenounceBeasts.Application.Services
         public async Task<IEnumerable<ComplaintDto>> GetByLocationAsync(double latitude, double longitude, double radiusKm)
         {
             var complaints = await _unitOfWork.Complaints.FindAsync(c => c.IsActive);
-            var filteredComplaints = complaints.Where(c => 
+            var filteredComplaints = complaints.Where(c =>
                 CalculateDistance(latitude, longitude, c.Latitude, c.Longitude) <= radiusKm);
             return _mapper.Map<IEnumerable<ComplaintDto>>(filteredComplaints);
         }
@@ -112,7 +111,7 @@ namespace DenounceBeasts.Application.Services
 
             complaint.StatusId = statusId;
             complaint.UpdatedAt = DateTime.UtcNow;
-            
+
             var history = new ComplaintHistory
             {
                 ComplaintId = complaintId,
@@ -122,11 +121,11 @@ namespace DenounceBeasts.Application.Services
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
-            
+
             _unitOfWork.Complaints.Update(complaint);
             await _unitOfWork.ComplaintHistories.AddAsync(history);
             await _unitOfWork.SaveChangesAsync();
-            
+
             return true;
         }
 
@@ -143,7 +142,7 @@ namespace DenounceBeasts.Application.Services
 
         public async Task<IEnumerable<ComplaintDto>> SearchAsync(string searchTerm)
         {
-            var complaints = await _unitOfWork.Complaints.FindAsync(c => 
+            var complaints = await _unitOfWork.Complaints.FindAsync(c =>
                 c.IsActive && (c.Title.Contains(searchTerm) || c.Description.Contains(searchTerm)));
             return _mapper.Map<IEnumerable<ComplaintDto>>(complaints);
         }

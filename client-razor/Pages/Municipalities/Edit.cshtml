@@ -1,0 +1,144 @@
+@page "/municipalities/{id:int}/edit"
+@model client_razor.Pages.Municipalities.EditModel
+@{
+    ViewData["Title"] = "Editar Municipio";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a asp-page="Index" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <div>
+            <h1 class="h2 text-primary mb-0">@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">Modifica los datos del municipio</p>
+        </div>
+    </div>
+
+    @if (Model.Municipality != null)
+    {
+        <!-- Formulario -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Información del Municipio</h5>
+                        <span class="badge @(Model.Municipality.IsActive ? "bg-success" : "bg-danger")">
+                            @(Model.Municipality.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input asp-for="Id" type="hidden" />
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Municipality.Code" class="form-label">Código *</label>
+                                    <input asp-for="Municipality.Code" class="form-control" placeholder="Ejemplo: SD-01" />
+                                    <span asp-validation-for="Municipality.Code" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Municipality.Name" class="form-label">Nombre *</label>
+                                    <input asp-for="Municipality.Name" class="form-control" placeholder="Nombre del municipio" />
+                                    <span asp-validation-for="Municipality.Name" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input asp-for="Municipality.IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Municipality.IsActive" class="form-check-label">
+                                        Municipio activo
+                                    </label>
+                                </div>
+                                <span asp-validation-for="Municipality.IsActive" class="text-danger"></span>
+                            </div>
+
+                            <!-- Información adicional -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Sectores registrados</label>
+                                    <div class="form-control-plaintext">
+                                        <span class="badge bg-info">@Model.OriginalMunicipality.SectorsCount sectores</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha de creación</label>
+                                    <div class="form-control-plaintext">
+                                        @Model.OriginalMunicipality.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                                <a asp-page="Index" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <a asp-page="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                                    <i class="fas fa-eye"></i> Ver Detalles
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Actualizar Municipio
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Estado de error -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                        <h5>Municipio no encontrado</h5>
+                        <p class="text-muted">El municipio que intenta editar no existe o no está disponible.</p>
+                        <a asp-page="Index" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Volver a la Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        // Validación en tiempo real del código
+        document.getElementById('Municipality_Code').addEventListener('blur', function() {
+            var code = this.value.trim();
+            var currentId = @Model.Id;
+            if (code.length > 0) {
+                // Aquí podrías agregar validación AJAX para verificar unicidad
+                console.log('Validating code: ' + code + ' for municipality: ' + currentId);
+            }
+        });
+
+        // Mostrar mensajes de éxito/error
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    </script>
+}

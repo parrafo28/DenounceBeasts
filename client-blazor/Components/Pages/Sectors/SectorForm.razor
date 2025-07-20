@@ -1,0 +1,297 @@
+@page "/sectors/create"
+@page "/sectors/{id:int}/edit"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@using Blazored.Toast.Services
+@using System.ComponentModel.DataAnnotations
+@inject ISectorService SectorService
+@inject IMunicipalityService MunicipalityService
+@inject IToastService ToastService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>@(IsEdit ? "Editar" : "Crear") Sector - DenounceBeasts</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <button type="button" class="btn btn-outline-secondary me-3" @onclick="GoBack">
+            <i class="fas fa-arrow-left"></i> Volver
+        </button>
+        <div>
+            <h1 class="h2 text-primary mb-0">@(IsEdit ? "Editar" : "Crear") Sector</h1>
+            <p class="text-muted mb-0">@(IsEdit ? "Modifica los datos del sector" : "Completa la información del nuevo sector")</p>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header @(IsEdit && originalSector != null ? "d-flex justify-content-between align-items-center" : "")">
+                    <h5 class="mb-0">Información del Sector</h5>
+                    @if (IsEdit && originalSector != null)
+                    {
+                        <span class="badge @(originalSector.IsActive ? "bg-success" : "bg-danger")">
+                            @(originalSector.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (isLoading)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Cargando datos...</p>
+                        </div>
+                    }
+                    else if (IsEdit && originalSector == null)
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                            <h5>Sector no encontrado</h5>
+                            <p class="text-muted">El sector que intenta editar no existe o no está disponible.</p>
+                            <button type="button" class="btn btn-primary" @onclick="GoBack">
+                                <i class="fas fa-arrow-left"></i> Volver a la Lista
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="sectorForm" OnValidSubmit="HandleSubmit">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="municipalityId" class="form-label">Municipio *</label>
+                                    <InputSelect id="municipalityId" class="form-select" @bind-Value="sectorForm.MunicipalityId">
+                                        <option value="0">Seleccionar municipio</option>
+                                        @foreach (var municipality in municipalities.Where(m => m.IsActive))
+                                        {
+                                            <option value="@municipality.Id">@municipality.Name</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => sectorForm.MunicipalityId)" />
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="code" class="form-label">Código *</label>
+                                    <InputText id="code" class="form-control" @bind-Value="sectorForm.Code" placeholder="Ejemplo: SEC-01" />
+                                    <ValidationMessage For="@(() => sectorForm.Code)" />
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Nombre *</label>
+                                    <InputText id="name" class="form-control" @bind-Value="sectorForm.Name" placeholder="Nombre del sector" />
+                                    <ValidationMessage For="@(() => sectorForm.Name)" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <InputCheckbox id="isActive" class="form-check-input" @bind-Value="sectorForm.IsActive" />
+                                    <label for="isActive" class="form-check-label">
+                                        Sector activo
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if (IsEdit && originalSector != null)
+                            {
+                                <!-- Información adicional -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de creación</label>
+                                        <div class="form-control-plaintext">
+                                            @originalSector.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Última actualización</label>
+                                        <div class="form-control-plaintext">
+                                            @originalSector.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                                <button type="button" class="btn btn-secondary" @onclick="GoBack">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                                @if (IsEdit)
+                                {
+                                    <a href="/sectors/@Id" class="btn btn-outline-info">
+                                        <i class="fas fa-eye"></i> Ver Detalles
+                                    </a>
+                                }
+                                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                    @if (isSaving)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    <i class="fas fa-save"></i> @(IsEdit ? "Actualizar" : "Crear") Sector
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    [SupplyParameterFromQuery] public int? MunicipalityId { get; set; }
+
+    private bool IsEdit => Id.HasValue;
+    private bool isLoading = false;
+    private bool isSaving = false;
+    private SectorDto? originalSector;
+    private List<MunicipalityDto> municipalities = new();
+    private SectorFormModel sectorForm = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMunicipalities();
+        
+        if (IsEdit)
+        {
+            await LoadSector();
+        }
+        else
+        {
+            sectorForm = new SectorFormModel
+            {
+                MunicipalityId = MunicipalityId ?? 0,
+                IsActive = true
+            };
+        }
+    }
+
+    private async Task LoadMunicipalities()
+    {
+        try
+        {
+            municipalities = (await MunicipalityService.GetAllAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar los municipios.");
+        }
+    }
+
+    private async Task LoadSector()
+    {
+        if (!Id.HasValue) return;
+
+        try
+        {
+            isLoading = true;
+            originalSector = await SectorService.GetByIdAsync(Id.Value);
+            
+            if (originalSector != null)
+            {
+                sectorForm = new SectorFormModel
+                {
+                    MunicipalityId = originalSector.MunicipalityId,
+                    Code = originalSector.Code,
+                    Name = originalSector.Name,
+                    IsActive = originalSector.IsActive
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar el sector. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isSaving = true;
+
+            // Verificar si el código es único dentro del municipio
+            var excludeId = IsEdit ? Id : null;
+            var isCodeUnique = await SectorService.IsCodeUniqueInMunicipalityAsync(
+                sectorForm.Code, sectorForm.MunicipalityId, excludeId);
+            
+            if (!isCodeUnique)
+            {
+                ToastService.ShowError("Ya existe un sector con este código en el municipio seleccionado.");
+                return;
+            }
+
+            if (IsEdit)
+            {
+                var updateDto = new UpdateSectorDto
+                {
+                    Code = sectorForm.Code.Trim(),
+                    Name = sectorForm.Name.Trim(),
+                    MunicipalityId = sectorForm.MunicipalityId,
+                    IsActive = sectorForm.IsActive
+                };
+
+                await SectorService.UpdateAsync(Id!.Value, updateDto);
+                ToastService.ShowSuccess("El sector fue actualizado exitosamente.");
+            }
+            else
+            {
+                var createDto = new CreateSectorDto
+                {
+                    Code = sectorForm.Code.Trim(),
+                    Name = sectorForm.Name.Trim(),
+                    MunicipalityId = sectorForm.MunicipalityId,
+                    IsActive = sectorForm.IsActive
+                };
+
+                await SectorService.CreateAsync(createDto);
+                ToastService.ShowSuccess("El sector fue creado exitosamente.");
+            }
+
+            Navigation.NavigateTo("/sectors");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Error al {(IsEdit ? "actualizar" : "crear")} el sector. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sectors");
+    }
+
+    public class SectorFormModel
+    {
+        [Required(ErrorMessage = "El municipio es requerido")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un municipio")]
+        public int MunicipalityId { get; set; }
+
+        [Required(ErrorMessage = "El código es requerido")]
+        [StringLength(10, MinimumLength = 2, ErrorMessage = "El código debe tener entre 2 y 10 caracteres")]
+        public string Code { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El nombre es requerido")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
+        public string Name { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; } = true;
+    }
+}

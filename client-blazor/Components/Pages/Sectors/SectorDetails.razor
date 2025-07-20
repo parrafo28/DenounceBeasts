@@ -1,0 +1,387 @@
+@page "/sectors/{id:int}"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@using Blazored.Toast.Services
+@inject ISectorService SectorService
+@inject IMunicipalityService MunicipalityService
+@inject IToastService ToastService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Detalle del Sector - DenounceBeasts</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-outline-secondary me-3" @onclick="GoBack">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <div>
+                <h1 class="h2 text-primary mb-0">Detalle del Sector</h1>
+                <p class="text-muted mb-0">Información completa del sector</p>
+            </div>
+        </div>
+        
+        @if (sector != null)
+        {
+            <div class="d-flex gap-2">
+                <a href="/sectors/@sector.Id/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando información del sector...</p>
+        </div>
+    }
+    else if (sector != null)
+    {
+        <div class="row">
+            <!-- Información básica del sector -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Información Básica</h5>
+                        <span class="badge @(sector.IsActive ? "bg-success" : "bg-danger") fs-6">
+                            @(sector.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Código</label>
+                                <div class="form-control-plaintext">@sector.Code</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nombre</label>
+                                <div class="form-control-plaintext">@sector.Name</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Municipio</label>
+                                <div class="form-control-plaintext">
+                                    @if (municipality != null)
+                                    {
+                                        <a href="/municipalities/@municipality.Id" class="text-decoration-none">
+                                            @municipality.Name
+                                        </a>
+                                        @if (!municipality.IsActive)
+                                        {
+                                            <span class="badge bg-warning ms-2">Municipio Inactivo</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No encontrado</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge @(sector.IsActive ? "bg-success" : "bg-danger") fs-6">
+                                        @(sector.IsActive ? "Activo" : "Inactivo")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha de Creación</label>
+                                <div class="form-control-plaintext">@sector.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Última Actualización</label>
+                                <div class="form-control-plaintext">@sector.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del municipio -->
+            <div class="col-lg-4">
+                @if (municipality != null)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Información del Municipio</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Código del Municipio</label>
+                                <div class="form-control-plaintext">@municipality.Code</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Estado del Municipio</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge @(municipality.IsActive ? "bg-success" : "bg-danger")">
+                                        @(municipality.IsActive ? "Activo" : "Inactivo")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Total de Sectores</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge bg-info">@municipality.SectorsCount sectores</span>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <a href="/municipalities/@municipality.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Ver Municipio
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Otros sectores del mismo municipio -->
+        @if (municipality != null)
+        {
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Otros Sectores del Municipio</h5>
+                    <a href="/sectors/create?municipalityId=@municipality.Id" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Agregar Otro Sector
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (isLoadingOtherSectors)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Cargando otros sectores...</p>
+                        </div>
+                    }
+                    else if (!otherSectors.Any())
+                    {
+                        <div class="text-center py-4">
+                            <p class="text-muted">No hay otros sectores en este municipio.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var otherSector in otherSectors)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold">@otherSector.Code</span>
+                                            </td>
+                                            <td>@otherSector.Name</td>
+                                            <td>
+                                                @if (otherSector.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td>@otherSector.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="/sectors/@otherSector.Id" class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="/sectors/@otherSector.Id/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- Estado de error -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                        <h5>Sector no encontrado</h5>
+                        <p class="text-muted">El sector que busca no existe o no está disponible.</p>
+                        <button type="button" class="btn btn-primary" @onclick="GoBack">
+                            <i class="fas fa-arrow-left"></i> Volver a la Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar el sector <strong>@sector?.Name</strong>?</p>
+                    <p class="text-muted">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteSector" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private SectorDto? sector;
+    private MunicipalityDto? municipality;
+    private List<SectorDto> otherSectors = new();
+    private bool isLoading = true;
+    private bool isLoadingOtherSectors = false;
+    private bool showDeleteModal = false;
+    private bool isDeleting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSector();
+        await LoadMunicipality();
+        await LoadOtherSectors();
+    }
+
+    private async Task LoadSector()
+    {
+        try
+        {
+            isLoading = true;
+            sector = await SectorService.GetByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar la información del sector.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadMunicipality()
+    {
+        if (sector == null) return;
+
+        try
+        {
+            municipality = await MunicipalityService.GetByIdAsync(sector.MunicipalityId);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar la información del municipio.");
+        }
+    }
+
+    private async Task LoadOtherSectors()
+    {
+        if (sector == null || municipality == null) return;
+
+        try
+        {
+            isLoadingOtherSectors = true;
+            var allSectorsInMunicipality = await SectorService.GetSectorsByMunicipalityAsync(municipality.Id);
+            otherSectors = allSectorsInMunicipality.Where(s => s.Id != Id).OrderBy(s => s.Name).ToList();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar otros sectores del municipio.");
+        }
+        finally
+        {
+            isLoadingOtherSectors = false;
+        }
+    }
+
+    private void ConfirmDelete()
+    {
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteModal = false;
+        isDeleting = false;
+    }
+
+    private async Task DeleteSector()
+    {
+        if (sector == null) return;
+
+        try
+        {
+            isDeleting = true;
+            var success = await SectorService.DeleteAsync(Id);
+            
+            if (success)
+            {
+                ToastService.ShowSuccess($"El sector '{sector.Name}' fue eliminado exitosamente.");
+                Navigation.NavigateTo("/sectors");
+            }
+            else
+            {
+                ToastService.ShowError("No se pudo eliminar el sector.");
+                CancelDelete();
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al eliminar el sector. Por favor, intente nuevamente.");
+            CancelDelete();
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sectors");
+    }
+}

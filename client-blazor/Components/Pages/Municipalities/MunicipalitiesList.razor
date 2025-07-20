@@ -1,0 +1,322 @@
+@page "/municipalities"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@using Blazored.Toast.Services
+@inject IMunicipalityService MunicipalityService
+@inject IToastService ToastService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Municipios - DenounceBeasts</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 text-primary">
+                <i class="fas fa-building"></i> Municipios
+            </h1>
+            <p class="text-muted">Gestión de municipios del sistema</p>
+        </div>
+        <a href="/municipalities/create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Agregar Municipio
+        </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="searchTerm" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="searchTerm" @bind="searchTerm" @oninput="OnSearchChanged" placeholder="Nombre o código..." />
+                </div>
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Estado</label>
+                    <select class="form-select" id="statusFilter" @bind="statusFilter" @onchange="OnFilterChanged">
+                        <option value="">Todos</option>
+                        <option value="active">Activos</option>
+                        <option value="inactive">Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ClearFilters">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@totalCount</h5>
+                    <p class="card-text">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">@activeCount</h5>
+                    <p class="card-text">Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">@inactiveCount</h5>
+                    <p class="card-text">Inactivos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de municipios -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Lista de Municipios</h5>
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Cargando municipios...</p>
+                </div>
+            }
+            else if (!filteredMunicipalities.Any())
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No se encontraron municipios que coincidan con los criterios de búsqueda.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Sectores</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var municipality in filteredMunicipalities)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold">@municipality.Code</span>
+                                    </td>
+                                    <td>@municipality.Name</td>
+                                    <td>
+                                        <span class="badge bg-info">@municipality.SectorsCount sectores</span>
+                                    </td>
+                                    <td>
+                                        @if (municipality.IsActive)
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        }
+                                    </td>
+                                    <td>@municipality.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/municipalities/@municipality.Id" class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/municipalities/@municipality.Id/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" @onclick="() => ConfirmDelete(municipality)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar el municipio <strong>@municipalityToDelete?.Name</strong>?</p>
+                    <p class="text-muted">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteMunicipality" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<MunicipalityDto> municipalities = new();
+    private List<MunicipalityDto> filteredMunicipalities = new();
+    private string searchTerm = string.Empty;
+    private string statusFilter = string.Empty;
+    private bool isLoading = true;
+    private bool showDeleteModal = false;
+    private bool isDeleting = false;
+    private MunicipalityDto? municipalityToDelete;
+
+    private int totalCount = 0;
+    private int activeCount = 0;
+    private int inactiveCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMunicipalities();
+    }
+
+    private async Task LoadMunicipalities()
+    {
+        try
+        {
+            isLoading = true;
+            municipalities = (await MunicipalityService.GetAllAsync()).ToList();
+            CalculateStatistics();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar los municipios. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CalculateStatistics()
+    {
+        totalCount = municipalities.Count;
+        activeCount = municipalities.Count(m => m.IsActive);
+        inactiveCount = municipalities.Count(m => !m.IsActive);
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = municipalities.AsEnumerable();
+
+        // Filtro por término de búsqueda
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filtered = filtered.Where(m =>
+                m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                m.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filtro por estado
+        if (!string.IsNullOrEmpty(statusFilter))
+        {
+            if (statusFilter == "active")
+            {
+                filtered = filtered.Where(m => m.IsActive);
+            }
+            else if (statusFilter == "inactive")
+            {
+                filtered = filtered.Where(m => !m.IsActive);
+            }
+        }
+
+        filteredMunicipalities = filtered.OrderBy(m => m.Name).ToList();
+    }
+
+    private void OnSearchChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void OnFilterChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        searchTerm = string.Empty;
+        statusFilter = string.Empty;
+        ApplyFilters();
+    }
+
+    private void ConfirmDelete(MunicipalityDto municipality)
+    {
+        municipalityToDelete = municipality;
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        municipalityToDelete = null;
+        showDeleteModal = false;
+        isDeleting = false;
+    }
+
+    private async Task DeleteMunicipality()
+    {
+        if (municipalityToDelete == null) return;
+
+        try
+        {
+            isDeleting = true;
+            var success = await MunicipalityService.DeleteAsync(municipalityToDelete.Id);
+            
+            if (success)
+            {
+                municipalities.Remove(municipalityToDelete);
+                CalculateStatistics();
+                ApplyFilters();
+                ToastService.ShowSuccess($"El municipio '{municipalityToDelete.Name}' fue eliminado exitosamente.");
+            }
+            else
+            {
+                ToastService.ShowError("No se pudo eliminar el municipio.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al eliminar el municipio. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            CancelDelete();
+        }
+    }
+}

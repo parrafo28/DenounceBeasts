@@ -40,8 +40,8 @@ namespace DenounceBeasts.API.Controllers
 
             // return Ok(await _sectorRepository.GetAllSectorsAsync());
             // var status = await _unitOfWork.Status.GetAllAsync();
-
-            return Ok(await _sectorService.GetSectors());
+            var setors = await _sectorService.GetSectors();
+            return Ok(setors);
         }
 
         [HttpGet]

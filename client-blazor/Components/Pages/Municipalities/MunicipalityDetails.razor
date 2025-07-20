@@ -1,0 +1,363 @@
+@page "/municipalities/{id:int}"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@using Blazored.Toast.Services
+@inject IMunicipalityService MunicipalityService
+@inject ISectorService SectorService
+@inject IToastService ToastService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Detalle del Municipio - DenounceBeasts</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-outline-secondary me-3" @onclick="GoBack">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <div>
+                <h1 class="h2 text-primary mb-0">Detalle del Municipio</h1>
+                <p class="text-muted mb-0">Información completa del municipio</p>
+            </div>
+        </div>
+        
+        @if (municipality != null)
+        {
+            <div class="d-flex gap-2">
+                <a href="/municipalities/@municipality.Id/edit" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando información del municipio...</p>
+        </div>
+    }
+    else if (municipality != null)
+    {
+        <div class="row">
+            <!-- Información básica -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Información Básica</h5>
+                        <span class="badge @(municipality.IsActive ? "bg-success" : "bg-danger") fs-6">
+                            @(municipality.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Código</label>
+                                <div class="form-control-plaintext">@municipality.Code</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nombre</label>
+                                <div class="form-control-plaintext">@municipality.Name</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Sectores Registrados</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge bg-info fs-6">@municipality.SectorsCount sectores</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge @(municipality.IsActive ? "bg-success" : "bg-danger") fs-6">
+                                        @(municipality.IsActive ? "Activo" : "Inactivo")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha de Creación</label>
+                                <div class="form-control-plaintext">@municipality.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Última Actualización</label>
+                                <div class="form-control-plaintext">@municipality.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Estadísticas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-12 mb-3">
+                                <div class="border rounded p-3">
+                                    <h4 class="text-primary mb-1">@municipality.SectorsCount</h4>
+                                    <small class="text-muted">Total de Sectores</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (municipality.SectorsCount > 0)
+                        {
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-success mb-1">@activeSectorsCount</h5>
+                                        <small class="text-muted">Activos</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-danger mb-1">@inactiveSectorsCount</h5>
+                                        <small class="text-muted">Inactivos</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sectores del municipio -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sectores del Municipio</h5>
+                <a href="/sectors/create?municipalityId=@municipality.Id" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> Agregar Sector
+                </a>
+            </div>
+            <div class="card-body">
+                @if (isLoadingSectors)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Cargando sectores...</p>
+                    </div>
+                }
+                else if (!sectors.Any())
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-map-marker-alt text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">Este municipio no tiene sectores registrados.</p>
+                        <a href="/sectors/create?municipalityId=@municipality.Id" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Crear Primer Sector
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sector in sectors)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold">@sector.Code</span>
+                                        </td>
+                                        <td>@sector.Name</td>
+                                        <td>
+                                            @if (sector.IsActive)
+                                            {
+                                                <span class="badge bg-success">Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inactivo</span>
+                                            }
+                                        </td>
+                                        <td>@sector.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="/sectors/@sector.Id" class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/sectors/@sector.Id/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Estado de error -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                        <h5>Municipio no encontrado</h5>
+                        <p class="text-muted">El municipio que busca no existe o no está disponible.</p>
+                        <button type="button" class="btn btn-primary" @onclick="GoBack">
+                            <i class="fas fa-arrow-left"></i> Volver a la Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar el municipio <strong>@municipality?.Name</strong>?</p>
+                    <p class="text-muted">Esta acción no se puede deshacer y eliminará también todos los sectores asociados.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteMunicipality" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private MunicipalityDto? municipality;
+    private List<SectorDto> sectors = new();
+    private bool isLoading = true;
+    private bool isLoadingSectors = false;
+    private bool showDeleteModal = false;
+    private bool isDeleting = false;
+
+    private int activeSectorsCount = 0;
+    private int inactiveSectorsCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMunicipality();
+        await LoadSectors();
+    }
+
+    private async Task LoadMunicipality()
+    {
+        try
+        {
+            isLoading = true;
+            municipality = await MunicipalityService.GetByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar la información del municipio.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadSectors()
+    {
+        try
+        {
+            isLoadingSectors = true;
+            sectors = (await SectorService.GetSectorsByMunicipalityAsync(Id)).ToList();
+            
+            // Calcular estadísticas de sectores
+            activeSectorsCount = sectors.Count(s => s.IsActive);
+            inactiveSectorsCount = sectors.Count(s => !s.IsActive);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar los sectores del municipio.");
+        }
+        finally
+        {
+            isLoadingSectors = false;
+        }
+    }
+
+    private void ConfirmDelete()
+    {
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteModal = false;
+        isDeleting = false;
+    }
+
+    private async Task DeleteMunicipality()
+    {
+        if (municipality == null) return;
+
+        try
+        {
+            isDeleting = true;
+            var success = await MunicipalityService.DeleteAsync(Id);
+            
+            if (success)
+            {
+                ToastService.ShowSuccess($"El municipio '{municipality.Name}' fue eliminado exitosamente.");
+                Navigation.NavigateTo("/municipalities");
+            }
+            else
+            {
+                ToastService.ShowError("No se pudo eliminar el municipio.");
+                CancelDelete();
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al eliminar el municipio. Por favor, intente nuevamente.");
+            CancelDelete();
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/municipalities");
+    }
+}

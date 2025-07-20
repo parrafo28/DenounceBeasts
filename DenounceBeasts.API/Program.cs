@@ -2,7 +2,6 @@ using DenounceBeasts.Application.Contracts;
 using DenounceBeasts.Application.Mapping;
 using DenounceBeasts.Application.Services;
 using DenounceBeasts.Domain.Entities;
-using DenounceBeasts.Infrastructure;
 using DenounceBeasts.Infrastructure.Contracts;
 using DenounceBeasts.Infrastructure.Repositories;
 using DenounceBeasts.Persistence;
@@ -24,6 +23,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 //builder.Services.AddTransient<MunicipalityRepository>();
 //builder.Services.AddTransient<SectorRepository>();
 //builder.Services.AddTransient<GenericRepository<Status>>();
+
+//string[] authorizedOrigins = ["https:localhost:8705", "https:localhost:8709"];
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigins",
+//        builder => builder.WithOrigins(authorizedOrigins)
+//                          .AllowAnyMethod()
+//                          .AllowAnyHeader()
+//                          .AllowCredentials());
+//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 
 // Repository registrations
 builder.Services.AddScoped<UnitOfWork>();
@@ -89,6 +105,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

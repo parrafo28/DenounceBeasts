@@ -1,0 +1,64 @@
+{
+  "name": "denouncebeasts-client-ts",
+  "version": "1.0.0",
+  "description": "TypeScript client for DenounceBeasts citizen complaints system",
+  "main": "dist/app.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "tsc --watch & live-server public --port=3000",
+    "serve": "live-server public --port=3000",
+    "clean": "rimraf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "bundle": "rollup -c",
+    "analyze": "rollup-plugin-analyzer"
+  },
+  "keywords": [
+    "typescript",
+    "denounce",
+    "complaints",
+    "citizen",
+    "management",
+    "frontend"
+  ],
+  "author": "DenounceBeasts Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bootstrap": "^5.3.0",
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "jest": "^29.6.0",
+    "jest-environment-jsdom": "^29.6.0",
+    "live-server": "^1.2.2",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "rollup": "^3.26.0",
+    "rollup-plugin-typescript2": "^0.35.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.1.0"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

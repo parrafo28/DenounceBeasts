@@ -1,0 +1,363 @@
+@page "/sectors"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@using Blazored.Toast.Services
+@inject ISectorService SectorService
+@inject IMunicipalityService MunicipalityService
+@inject IToastService ToastService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Sectores - DenounceBeasts</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 text-primary">
+                <i class="fas fa-map-marker-alt"></i> Sectores
+            </h1>
+            <p class="text-muted">Gestión de sectores del sistema</p>
+        </div>
+        <a href="/sectors/create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Agregar Sector
+        </a>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="searchTerm" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="searchTerm" @bind="searchTerm" @oninput="OnSearchChanged" placeholder="Nombre o código..." />
+                </div>
+                <div class="col-md-3">
+                    <label for="municipalityFilter" class="form-label">Municipio</label>
+                    <select class="form-select" id="municipalityFilter" @bind="municipalityFilter" @onchange="OnFilterChanged">
+                        <option value="">Todos los municipios</option>
+                        @foreach (var municipality in municipalities.Where(m => m.IsActive))
+                        {
+                            <option value="@municipality.Id">@municipality.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="statusFilter" class="form-label">Estado</label>
+                    <select class="form-select" id="statusFilter" @bind="statusFilter" @onchange="OnFilterChanged">
+                        <option value="">Todos</option>
+                        <option value="active">Activos</option>
+                        <option value="inactive">Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ClearFilters">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@totalCount</h5>
+                    <p class="card-text">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">@activeCount</h5>
+                    <p class="card-text">Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">@inactiveCount</h5>
+                    <p class="card-text">Inactivos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-info">@municipalitiesWithSectors</h5>
+                    <p class="card-text">Municipios con Sectores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de sectores -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Lista de Sectores</h5>
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Cargando sectores...</p>
+                </div>
+            }
+            else if (!filteredSectors.Any())
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No se encontraron sectores que coincidan con los criterios de búsqueda.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Municipio</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sector in filteredSectors)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold">@sector.Code</span>
+                                    </td>
+                                    <td>@sector.Name</td>
+                                    <td>
+                                        <a href="/municipalities/@sector.MunicipalityId" class="text-decoration-none">
+                                            @sector.MunicipalityName
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if (sector.IsActive)
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        }
+                                    </td>
+                                    <td>@sector.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/sectors/@sector.Id" class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/sectors/@sector.Id/edit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Eliminar" @onclick="() => ConfirmDelete(sector)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+@if (showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar el sector <strong>@sectorToDelete?.Name</strong>?</p>
+                    <p class="text-muted">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteSector" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<SectorDto> sectors = new();
+    private List<SectorDto> filteredSectors = new();
+    private List<MunicipalityDto> municipalities = new();
+    private string searchTerm = string.Empty;
+    private string municipalityFilter = string.Empty;
+    private string statusFilter = string.Empty;
+    private bool isLoading = true;
+    private bool showDeleteModal = false;
+    private bool isDeleting = false;
+    private SectorDto? sectorToDelete;
+
+    private int totalCount = 0;
+    private int activeCount = 0;
+    private int inactiveCount = 0;
+    private int municipalitiesWithSectors = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            isLoading = true;
+            
+            // Cargar municipios y sectores en paralelo
+            var municipalitiesTask = MunicipalityService.GetAllAsync();
+            var sectorsTask = SectorService.GetAllAsync();
+            
+            await Task.WhenAll(municipalitiesTask, sectorsTask);
+            
+            municipalities = municipalitiesTask.Result.ToList();
+            sectors = sectorsTask.Result.ToList();
+            
+            CalculateStatistics();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al cargar los datos. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void CalculateStatistics()
+    {
+        totalCount = sectors.Count;
+        activeCount = sectors.Count(s => s.IsActive);
+        inactiveCount = sectors.Count(s => !s.IsActive);
+        municipalitiesWithSectors = sectors.Select(s => s.MunicipalityId).Distinct().Count();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = sectors.AsEnumerable();
+
+        // Filtro por término de búsqueda
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filtered = filtered.Where(s =>
+                s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                s.Code.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Filtro por municipio
+        if (!string.IsNullOrEmpty(municipalityFilter) && int.TryParse(municipalityFilter, out var municipalityId))
+        {
+            filtered = filtered.Where(s => s.MunicipalityId == municipalityId);
+        }
+
+        // Filtro por estado
+        if (!string.IsNullOrEmpty(statusFilter))
+        {
+            if (statusFilter == "active")
+            {
+                filtered = filtered.Where(s => s.IsActive);
+            }
+            else if (statusFilter == "inactive")
+            {
+                filtered = filtered.Where(s => !s.IsActive);
+            }
+        }
+
+        filteredSectors = filtered.OrderBy(s => s.MunicipalityName).ThenBy(s => s.Name).ToList();
+    }
+
+    private void OnSearchChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void OnFilterChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        searchTerm = string.Empty;
+        municipalityFilter = string.Empty;
+        statusFilter = string.Empty;
+        ApplyFilters();
+    }
+
+    private void ConfirmDelete(SectorDto sector)
+    {
+        sectorToDelete = sector;
+        showDeleteModal = true;
+    }
+
+    private void CancelDelete()
+    {
+        sectorToDelete = null;
+        showDeleteModal = false;
+        isDeleting = false;
+    }
+
+    private async Task DeleteSector()
+    {
+        if (sectorToDelete == null) return;
+
+        try
+        {
+            isDeleting = true;
+            var success = await SectorService.DeleteAsync(sectorToDelete.Id);
+            
+            if (success)
+            {
+                sectors.Remove(sectorToDelete);
+                CalculateStatistics();
+                ApplyFilters();
+                ToastService.ShowSuccess($"El sector '{sectorToDelete.Name}' fue eliminado exitosamente.");
+            }
+            else
+            {
+                ToastService.ShowError("No se pudo eliminar el sector.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Error al eliminar el sector. Por favor, intente nuevamente.");
+        }
+        finally
+        {
+            CancelDelete();
+        }
+    }
+}

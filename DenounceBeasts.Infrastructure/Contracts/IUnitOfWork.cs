@@ -19,6 +19,7 @@ namespace DenounceBeasts.Infrastructure.Contracts
         IRepository<ComplaintHistory> ComplaintHistories { get; }
         IRepository<UserProfile> UserProfiles { get; }
 
+        Task CompleteAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task<int> SaveChangesAsync();

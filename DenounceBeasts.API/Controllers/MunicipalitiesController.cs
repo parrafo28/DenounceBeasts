@@ -44,6 +44,10 @@ namespace DenounceBeasts.API.Controllers
                 Id = s.Id,
                 Code = s.Code,
                 Name = s.Name,
+                IsActive = s.IsActive,
+                CreatedAt = s.CreatedAt,
+                UpdatedAt = s.UpdatedAt,
+                SectorsCount = sectosrs.Count(sector => sector.MunicipalityId == s.Id)
                 //Sector = sectosrs.Where(sector => sector.MunicipalityId == s.Id).Select(sector => new SectorDto
                 //{
                 //    Id = sector.Id,
@@ -75,6 +79,10 @@ namespace DenounceBeasts.API.Controllers
                 Id = municipality.Id,
                 Code = municipality.Code,
                 Name = municipality.Name,
+                IsActive = municipality.IsActive,
+                CreatedAt = municipality.CreatedAt,
+                UpdatedAt = municipality.UpdatedAt,
+                SectorsCount = 0 // For single municipality, we don't need to calculate this
             };
             return Ok(municipalityResponse);
         }
