@@ -14,15 +14,15 @@ import type {
 import config from '@/config/app.config';
 import { logger, cache, retry, sleep } from '@/utils';
 
-interface RequestInterceptor {
+export interface RequestInterceptor {
   (config: RequestConfig): RequestConfig | Promise<RequestConfig>;
 }
 
-interface ResponseInterceptor<T> {
+export interface ResponseInterceptor<T> {
   (response: ApiResponse<T>): ApiResponse<T> | Promise<ApiResponse<T>>;
 }
 
-interface ErrorInterceptor {
+export interface ErrorInterceptor {
   (error: ApiError): ApiError | Promise<ApiError>;
 }
 

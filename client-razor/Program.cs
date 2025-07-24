@@ -18,6 +18,17 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Add session support for authentication
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Add HttpContextAccessor for session access
+builder.Services.AddHttpContextAccessor();
+
 // Configurar HttpClient con Polly
 var retryPolicy = HttpPolicyExtensions
     .HandleTransientHttpError()
@@ -44,9 +55,18 @@ builder.Services.AddHttpClient<ISectorService, SectorService>(client =>
 })
 .AddPolicyHandler(retryPolicy);
 
+// Authentication services
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseUrl") ?? "https://localhost:7156/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddPolicyHandler(retryPolicy);
+
 // Registrar servicios
 builder.Services.AddScoped<IMunicipalityService, MunicipalityService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
@@ -62,6 +82,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 

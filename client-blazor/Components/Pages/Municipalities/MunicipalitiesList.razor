@@ -1,6 +1,7 @@
 @page "/municipalities"
 @using ClientBlazor.Models
 @using ClientBlazor.Services
+@using ClientBlazor.Components.Auth
 @using Blazored.Toast.Services
 @inject IMunicipalityService MunicipalityService
 @inject IToastService ToastService
@@ -9,6 +10,7 @@
 
 <PageTitle>Municipios - DenounceBeasts</PageTitle>
 
+<AuthGuard>
 <div class="container-fluid">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -320,3 +322,4 @@
         }
     }
 }
+</AuthGuard>

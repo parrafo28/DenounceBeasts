@@ -12,9 +12,13 @@ import {
   cache,
   formatDate,
   truncate,
-  debounce
+  debounce,
+  showNotification
 } from './utils';
 import { serviceManager, services } from './services';
+import { authService } from './services/auth-service';
+import { AuthModalComponent } from './components/auth-modal';
+import { AuthNavbarComponent } from './components/auth-navbar';
 import config, { validateConfig } from './config/app.config';
 import type { 
   Municipality, 
@@ -23,7 +27,8 @@ import type {
   UpdateMunicipalityDto,
   CreateSectorDto,
   UpdateSectorDto,
-  ValidationResult 
+  ValidationResult,
+  AuthUser
 } from './types';
 
 /**
@@ -38,7 +43,15 @@ class DenounceBeatsApp {
   private selectedMunicipality: Municipality | null = null;
   private selectedSector: Sector | null = null;
 
+  // Authentication components
+  private authModal: AuthModalComponent;
+  private authNavbar: AuthNavbarComponent;
+
   constructor() {
+    // Initialize authentication components
+    this.authModal = new AuthModalComponent();
+    this.authNavbar = new AuthNavbarComponent();
+    
     this.init();
   }
 
@@ -52,6 +65,9 @@ class DenounceBeatsApp {
         throw new Error('Invalid application configuration');
       }
 
+      // Initialize authentication first
+      await this.initializeAuthentication();
+
       // Initialize services
       await serviceManager.initialize();
 
@@ -61,19 +77,192 @@ class DenounceBeatsApp {
       // Setup UI event handlers
       this.setupUIEventHandlers();
 
-      // Load initial data
-      await this.loadInitialData();
+      // Setup authentication event handlers
+      this.setupAuthEventHandlers();
+
+      // Load initial data if authenticated
+      if (authService.isAuthenticated()) {
+        await this.loadInitialData();
+        this.showView('municipalities');
+      } else {
+        this.showUnauthenticatedView();
+      }
 
       this.initialized = true;
-      this.showView('municipalities');
 
-      logger.info('Application initialized successfully');
+      logger.info('Application initialized successfully', {
+        authenticated: authService.isAuthenticated(),
+        user: authService.getCurrentUser()?.email
+      });
       eventBus.emitSync(EVENT_TYPES.APP_READY, { timestamp: new Date() });
+
+      // Show welcome message for authenticated users
+      if (authService.isAuthenticated()) {
+        const user = authService.getCurrentUser();
+        showNotification(
+          `¡Bienvenido ${user?.firstName}! Sistema cargado correctamente.`,
+          'success',
+          3000
+        );
+      }
 
     } catch (error) {
       logger.error('Failed to initialize application', { error });
       this.showError('Error al inicializar la aplicación');
     }
+  }
+
+  /**
+   * Initialize authentication system
+   */
+  private async initializeAuthentication(): Promise<void> {
+    try {
+      logger.info('Initializing authentication system');
+      
+      // Initialize auth service
+      await authService.initialize();
+      
+      logger.info('Authentication system initialized', {
+        authenticated: authService.isAuthenticated()
+      });
+    } catch (error) {
+      logger.error('Authentication initialization failed', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Setup authentication event handlers
+   */
+  private setupAuthEventHandlers(): void {
+    // Listen for navbar auth requests
+    this.authNavbar.events.on('loginRequested', () => {
+      this.authModal.showLogin();
+    });
+
+    this.authNavbar.events.on('registerRequested', () => {
+      this.authModal.showRegister();
+    });
+
+    // Listen for auth modal events
+    this.authModal.events.on('loginSuccess', (data) => {
+      logger.info('User logged in successfully', { user: data.user });
+      this.onUserAuthenticated(data.user);
+    });
+
+    this.authModal.events.on('registerSuccess', (data) => {
+      logger.info('User registered successfully', { user: data.user });
+      this.onUserAuthenticated(data.user);
+    });
+
+    // Listen for auth service events
+    authService.events.on('logout', () => {
+      logger.info('User logged out');
+      this.onUserLoggedOut();
+    });
+  }
+
+  /**
+   * Handle user authentication
+   */
+  private async onUserAuthenticated(user: AuthUser): Promise<void> {
+    try {
+      // Load initial data
+      await this.loadInitialData();
+      
+      // Show main application
+      this.showView('municipalities');
+      
+      // Update UI state
+      this.updateAuthenticatedUI();
+      
+    } catch (error) {
+      logger.error('Error handling user authentication', error);
+      showNotification('Error al cargar datos de la aplicación', 'error');
+    }
+  }
+
+  /**
+   * Handle user logout
+   */
+  private onUserLoggedOut(): void {
+    // Clear data
+    this.municipalities = [];
+    this.sectors = [];
+    this.selectedMunicipality = null;
+    this.selectedSector = null;
+    
+    // Clear cache
+    cache.clear();
+    
+    // Show unauthenticated view
+    this.showUnauthenticatedView();
+    
+    // Update UI state
+    this.updateAuthenticatedUI();
+  }
+
+  /**
+   * Show view for unauthenticated users
+   */
+  private showUnauthenticatedView(): void {
+    const mainContent = document.getElementById('content');
+    if (mainContent) {
+      mainContent.innerHTML = `
+        <div class="container mt-5">
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="card shadow">
+                <div class="card-body text-center p-5">
+                  <i class="bi bi-megaphone text-primary mb-4" style="font-size: 4rem;"></i>
+                  <h2 class="mb-4">Bienvenido a DenounceBeasts</h2>
+                  <p class="lead mb-4">Sistema profesional de gestión de denuncias ciudadanas</p>
+                  <p class="text-muted mb-4">
+                    Para acceder al sistema, necesitas iniciar sesión con tu cuenta.
+                    Si no tienes una cuenta, puedes crear una de forma gratuita.
+                  </p>
+                  <div class="d-flex gap-3 justify-content-center">
+                    <button class="btn btn-primary btn-lg" id="loginFromWelcome">
+                      <i class="bi bi-box-arrow-in-right me-2"></i>
+                      Iniciar Sesión
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg" id="registerFromWelcome">
+                      <i class="bi bi-person-plus me-2"></i>
+                      Crear Cuenta
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Bind welcome screen events
+      const loginBtn = document.getElementById('loginFromWelcome');
+      const registerBtn = document.getElementById('registerFromWelcome');
+      
+      if (loginBtn) {
+        loginBtn.addEventListener('click', () => this.authModal.showLogin());
+      }
+      
+      if (registerBtn) {
+        registerBtn.addEventListener('click', () => this.authModal.showRegister());
+      }
+    }
+  }
+
+  /**
+   * Update UI based on authentication state
+   */
+  private updateAuthenticatedUI(): void {
+    const navElements = document.querySelectorAll('.nav-item[data-auth-required="true"]');
+    const authenticated = authService.isAuthenticated();
+    
+    navElements.forEach(element => {
+      const htmlElement = element as HTMLElement;
+      htmlElement.style.display = authenticated ? 'block' : 'none';
+    });
   }
 
   /**

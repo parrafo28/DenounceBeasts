@@ -1,6 +1,7 @@
 using ClientBlazor.Components;
 using ClientBlazor.Services;
 using Blazored.Toast;
+using Blazored.LocalStorage;
 using Polly;
 using Polly.Extensions.Http;
 using Serilog;
@@ -21,8 +22,9 @@ builder.Host.UseSerilog();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add Blazored Toast
+// Add Blazored services
 builder.Services.AddBlazoredToast();
+builder.Services.AddBlazoredLocalStorage();
 
 // Configurar HttpClient con Polly
 var retryPolicy = HttpPolicyExtensions
@@ -50,9 +52,18 @@ builder.Services.AddHttpClient<ISectorService, SectorService>(client =>
 })
 .AddPolicyHandler(retryPolicy);
 
+// Authentication services
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseUrl") ?? "https://localhost:7156/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+})
+.AddPolicyHandler(retryPolicy);
+
 // Registrar servicios
 builder.Services.AddScoped<IMunicipalityService, MunicipalityService>();
 builder.Services.AddScoped<ISectorService, SectorService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

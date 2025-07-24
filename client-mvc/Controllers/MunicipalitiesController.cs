@@ -1,10 +1,12 @@
 using DenounceBeasts.WebClient.Models.Domain;
 using DenounceBeasts.WebClient.Models.ViewModels;
 using DenounceBeasts.WebClient.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.WebClient.Controllers;
 
+[Authorize]
 public class MunicipalitiesController : Controller
 {
     private readonly IMunicipalityService _municipalityService;

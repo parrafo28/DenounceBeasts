@@ -15,6 +15,13 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`)
+    
+    // Add auth token if available
+    const token = localStorage.getItem('denouncebeasts_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    
     return config
   },
   (error) => {
@@ -42,6 +49,26 @@ api.interceptors.response.use(
         case 400:
           message = MESSAGES.error.validation
           break
+        case 401:
+          // Handle unauthorized - clear auth data
+          localStorage.removeItem('denouncebeasts_token')
+          localStorage.removeItem('denouncebeasts_user')
+          localStorage.removeItem('denouncebeasts_token_expiry')
+          
+          // Only show message if not an auth endpoint to avoid duplicate messages
+          if (!error.config.url?.includes('/auth/')) {
+            message = 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.'
+            toast.error(message)
+            
+            // Redirect to login after a short delay
+            setTimeout(() => {
+              window.location.href = '/auth/login'
+            }, 1500)
+          }
+          return Promise.reject(error)
+        case 403:
+          message = 'No tienes permisos para realizar esta acción'
+          break
         case 404:
           message = MESSAGES.error.notFound
           break
@@ -55,7 +82,11 @@ api.interceptors.response.use(
       message = MESSAGES.error.network
     }
     
-    toast.error(message)
+    // Don't show toast for auth errors as they are handled by the auth service
+    if (!error.config.url?.includes('/auth/')) {
+      toast.error(message)
+    }
+    
     return Promise.reject(error)
   }
 )

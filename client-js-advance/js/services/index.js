@@ -290,6 +290,9 @@ class ServiceFactory {
             case 'complaint':
                 service = new ComplaintService(this.apiClient);
                 break;
+            case 'auth':
+                service = new AuthService();
+                break;
             default:
                 throw new Error(`Unknown service: ${serviceName}`);
         }
@@ -313,6 +316,8 @@ class ServiceFactory {
                 return new StatusService(customApiClient);
             case 'complaint':
                 return new ComplaintService(customApiClient);
+            case 'auth':
+                return new AuthService();
             default:
                 throw new Error(`Unknown service: ${serviceName}`);
         }
@@ -322,7 +327,7 @@ class ServiceFactory {
      * Get all available service names
      */
     getServiceNames() {
-        return ['municipality', 'sector', 'complainttype', 'status', 'complaint'];
+        return ['municipality', 'sector', 'complainttype', 'status', 'complaint', 'auth'];
     }
 }
 
@@ -335,6 +340,7 @@ const sectorService = serviceFactory.getService('sector');
 const complaintTypeService = serviceFactory.getService('complainttype');
 const statusService = serviceFactory.getService('status');
 const complaintService = serviceFactory.getService('complaint');
+const authService = serviceFactory.getService('auth');
 
 // Export
 if (typeof module !== 'undefined' && module.exports) {
@@ -345,13 +351,15 @@ if (typeof module !== 'undefined' && module.exports) {
         ComplaintTypeService,
         StatusService,
         ComplaintService,
+        AuthService,
         ServiceFactory,
         serviceFactory,
         municipalityService,
         sectorService,
         complaintTypeService,
         statusService,
-        complaintService
+        complaintService,
+        authService
     };
 } else {
     window.BaseService = BaseService;
@@ -360,6 +368,7 @@ if (typeof module !== 'undefined' && module.exports) {
     window.ComplaintTypeService = ComplaintTypeService;
     window.StatusService = StatusService;
     window.ComplaintService = ComplaintService;
+    window.AuthService = AuthService;
     window.ServiceFactory = ServiceFactory;
     window.serviceFactory = serviceFactory;
     window.municipalityService = municipalityService;
@@ -367,4 +376,5 @@ if (typeof module !== 'undefined' && module.exports) {
     window.complaintTypeService = complaintTypeService;
     window.statusService = statusService;
     window.complaintService = complaintService;
+    window.authService = authService;
 }

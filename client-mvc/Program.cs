@@ -65,6 +65,19 @@ builder.Services.AddScoped<IComplaintTypeService, ComplaintTypeService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<IComplaintService, ComplaintService>();
 
+// Authentication services
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+{
+    var apiSettings = builder.Configuration.GetSection("ApiSettings").Get<ApiSettings>();
+    client.BaseAddress = new Uri(apiSettings?.BaseUrl ?? "https://localhost:7175");
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("User-Agent", "DenounceBeasts-WebClient/1.0");
+})
+.AddPolicyHandler(retryPolicy)
+.AddPolicyHandler(timeoutPolicy);
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
@@ -106,9 +119,19 @@ app.UseRouting();
 
 app.UseSession();
 
+// Add authentication support
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Configure authentication paths
+app.UseStatusCodePagesWithRedirects("/Auth/AccessDenied?statusCode={0}");
+
 // Configure routes
+app.MapControllerRoute(
+    name: "auth",
+    pattern: "auth/{action=Login}",
+    defaults: new { controller = "Auth" });
+
 app.MapControllerRoute(
     name: "municipalities",
     pattern: "municipalities/{action=Index}/{id?}",

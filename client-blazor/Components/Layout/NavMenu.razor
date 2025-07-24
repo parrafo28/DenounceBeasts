@@ -16,17 +16,62 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="municipalities">
-                <i class="fas fa-building"></i> Municipios
-            </NavLink>
-        </div>
+        @if (AuthService.IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="municipalities">
+                    <i class="fas fa-building"></i> Municipios
+                </NavLink>
+            </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="sectors">
-                <i class="fas fa-map-marker-alt"></i> Sectores
-            </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="sectors">
+                    <i class="fas fa-map-marker-alt"></i> Sectores
+                </NavLink>
+            </div>
+
+            <hr class="nav-divider" />
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/profile">
+                    <i class="bi bi-person"></i> Mi Perfil
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/login">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/register">
+                    <i class="bi bi-person-plus"></i> Registrarse
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
+
+@using ClientBlazor.Services
+@inject IAuthService AuthService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.AuthStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged(ClientBlazor.Models.AuthUser? user)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthStateChanged -= OnAuthStateChanged;
+    }
+}
 

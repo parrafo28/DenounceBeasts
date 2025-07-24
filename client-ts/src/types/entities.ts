@@ -110,6 +110,49 @@ export interface User extends BaseEntity {
   commentsCount?: number;
 }
 
+// Auth User Interface (for authentication)
+export interface AuthUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  roles: string[];
+  isActive: boolean;
+}
+
+// Login DTO
+export interface LoginDto {
+  email: string;
+  password: string;
+}
+
+// Register DTO
+export interface RegisterDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone?: string;
+  address?: string;
+}
+
+// Auth Response DTO
+export interface AuthResponseDto {
+  token: string;
+  expires: Date;
+  user: AuthUser;
+}
+
+// Change Password DTO
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
 // Priority Enum
 export enum Priority {
   LOW = 'low',

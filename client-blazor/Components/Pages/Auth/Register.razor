@@ -1,0 +1,246 @@
+@page "/auth/register"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Crear Cuenta - DenounceBeasts</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-plus text-success" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3">Crear Cuenta</h2>
+                        <p class="text-muted">Únete a DenounceBeasts y ayuda a tu comunidad</p>
+                    </div>
+
+                    <EditForm Model="registerModel" OnValidSubmit="HandleRegister" FormName="RegisterForm">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Nombre
+                                </label>
+                                <InputText id="firstName" @bind-Value="registerModel.FirstName" 
+                                           class="form-control" 
+                                           placeholder="Tu nombre" 
+                                           autocomplete="given-name" />
+                                <ValidationMessage For="@(() => registerModel.FirstName)" class="text-danger" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Apellido
+                                </label>
+                                <InputText id="lastName" @bind-Value="registerModel.LastName" 
+                                           class="form-control" 
+                                           placeholder="Tu apellido" 
+                                           autocomplete="family-name" />
+                                <ValidationMessage For="@(() => registerModel.LastName)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email
+                            </label>
+                            <InputText id="email" @bind-Value="registerModel.Email" 
+                                       @onblur="CheckEmailAvailability"
+                                       class="form-control" 
+                                       placeholder="tu@email.com" 
+                                       autocomplete="email" />
+                            <ValidationMessage For="@(() => registerModel.Email)" class="text-danger" />
+                            @if (!string.IsNullOrEmpty(emailMessage))
+                            {
+                                <div class="small @(emailAvailable ? "text-success" : "text-danger") mt-1">
+                                    <i class="bi @(emailAvailable ? "bi-check-circle" : "bi-x-circle") me-1"></i>
+                                    @emailMessage
+                                </div>
+                            }
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="bi bi-telephone me-1"></i>Teléfono
+                                    <span class="text-muted">(opcional)</span>
+                                </label>
+                                <InputText id="phone" @bind-Value="registerModel.Phone" 
+                                           class="form-control" 
+                                           placeholder="(809) 123-4567" 
+                                           autocomplete="tel" />
+                                <ValidationMessage For="@(() => registerModel.Phone)" class="text-danger" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="address" class="form-label">
+                                    <i class="bi bi-geo-alt me-1"></i>Dirección
+                                    <span class="text-muted">(opcional)</span>
+                                </label>
+                                <InputText id="address" @bind-Value="registerModel.Address" 
+                                           class="form-control" 
+                                           placeholder="Tu dirección" 
+                                           autocomplete="street-address" />
+                                <ValidationMessage For="@(() => registerModel.Address)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock me-1"></i>Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <InputText id="password" @bind-Value="registerModel.Password" 
+                                               type="@(showPassword ? "text" : "password")"
+                                               class="form-control" 
+                                               placeholder="Mínimo 6 caracteres" 
+                                               autocomplete="new-password" />
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                                        <i class="bi @(showPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                                    </button>
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="confirmPassword" class="form-label">
+                                    <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <InputText id="confirmPassword" @bind-Value="registerModel.ConfirmPassword" 
+                                               type="@(showConfirmPassword ? "text" : "password")"
+                                               class="form-control" 
+                                               placeholder="Repite tu contraseña" 
+                                               autocomplete="new-password" />
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="ToggleConfirmPasswordVisibility">
+                                        <i class="bi @(showConfirmPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                                    </button>
+                                </div>
+                                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3" disabled="@(isLoading || !emailAvailable)">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span>Creando cuenta...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-person-plus me-2"></i>
+                                <span>Crear Cuenta</span>
+                            }
+                        </button>
+                    </EditForm>
+
+                    <div class="text-center">
+                        <hr class="my-4">
+                        <p class="mb-0">
+                            ¿Ya tienes cuenta? 
+                            <a href="/auth/login" class="text-decoration-none">
+                                <strong>Inicia sesión aquí</strong>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterModel registerModel = new();
+    private bool showPassword = false;
+    private bool showConfirmPassword = false;
+    private bool isLoading = false;
+    private bool emailAvailable = true;
+    private string emailMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Redirect if already authenticated
+        if (AuthService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        showConfirmPassword = !showConfirmPassword;
+    }
+
+    private async Task CheckEmailAvailability()
+    {
+        if (string.IsNullOrEmpty(registerModel.Email) || !registerModel.Email.Contains("@"))
+        {
+            emailMessage = string.Empty;
+            emailAvailable = true;
+            return;
+        }
+
+        try
+        {
+            emailAvailable = await AuthService.IsEmailAvailableAsync(registerModel.Email);
+            emailMessage = emailAvailable ? "Email disponible" : "Este email ya está registrado";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking email: {ex.Message}");
+            emailMessage = "Error al verificar email";
+            emailAvailable = false;
+        }
+    }
+
+    private async Task HandleRegister()
+    {
+        if (!emailAvailable)
+        {
+            return;
+        }
+
+        isLoading = true;
+        
+        try
+        {
+            var request = new RegisterRequest
+            {
+                FirstName = registerModel.FirstName,
+                LastName = registerModel.LastName,
+                Email = registerModel.Email,
+                Password = registerModel.Password,
+                ConfirmPassword = registerModel.ConfirmPassword,
+                Phone = registerModel.Phone,
+                Address = registerModel.Address
+            };
+
+            var response = await AuthService.RegisterAsync(request);
+            
+            if (response != null)
+            {
+                // Redirect to home
+                Navigation.NavigateTo("/", forceLoad: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Error handling is done in the service with toast notifications
+            Console.WriteLine($"Registration error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

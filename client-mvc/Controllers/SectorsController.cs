@@ -1,11 +1,13 @@
 using DenounceBeasts.WebClient.Models.Domain;
 using DenounceBeasts.WebClient.Models.ViewModels;
 using DenounceBeasts.WebClient.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DenounceBeasts.WebClient.Controllers;
 
+[Authorize]
 public class SectorsController : Controller
 {
     private readonly ISectorService _sectorService;
