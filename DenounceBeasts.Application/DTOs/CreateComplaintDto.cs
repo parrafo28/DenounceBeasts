@@ -13,19 +13,17 @@ namespace DenounceBeasts.Application.DTOs
         public string Description { get; set; }
         
         [StringLength(2000)]
-        public string Detail { get; set; }
+        public string? Detail { get; set; }
         
         [Required]
         [StringLength(500)]
         public string Address { get; set; }
         
-        [Required]
-        public double Latitude { get; set; }
+        public double? Latitude { get; set; }
         
-        [Required]
-        public double Longitude { get; set; }
+        public double? Longitude { get; set; }
         
-        public string Image { get; set; }
+        public string? Image { get; set; }
         
         [Required]
         public int UserId { get; set; }

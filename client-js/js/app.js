@@ -1164,6 +1164,7 @@ function editComplaint(id) {
     document.getElementById('complaintId').value = complaint.id;
     document.getElementById('complaintTitle').value = complaint.title;
     document.getElementById('complaintDescription').value = complaint.description;
+    document.getElementById('complaintDetail').value = complaint.detail || '';
     document.getElementById('complaintTypeId').value = complaint.complaintTypeId;
     document.getElementById('complaintMunicipalityId').value = complaint.municipalityId;
     
@@ -1567,18 +1568,25 @@ document.addEventListener('DOMContentLoaded', async function() {
             id: document.getElementById('complaintId').value || 0,
             title: document.getElementById('complaintTitle').value,
             description: document.getElementById('complaintDescription').value,
+            detail: document.getElementById('complaintDetail') ? document.getElementById('complaintDetail').value : "", // Campo opcional
             complaintTypeId: parseInt(document.getElementById('complaintTypeId').value),
             municipalityId: parseInt(document.getElementById('complaintMunicipalityId').value),
             sectorId: document.getElementById('complaintSectorId').value ? parseInt(document.getElementById('complaintSectorId').value) : null,
             address: document.getElementById('complaintAddress').value,
             latitude: document.getElementById('complaintLatitude').value ? parseFloat(document.getElementById('complaintLatitude').value) : null,
             longitude: document.getElementById('complaintLongitude').value ? parseFloat(document.getElementById('complaintLongitude').value) : null,
+            image: "", // Por ahora vacío, puede implementarse subida de archivos después
             statusId: 1, // Estado inicial
-            priority: 'medium' // Prioridad por defecto
+            userId: currentUser ? currentUser.id : null // ID del usuario autenticado
         };
         
         if (!data.title || !data.description || !data.complaintTypeId || !data.municipalityId) {
             showError('Por favor complete todos los campos requeridos');
+            return;
+        }
+        
+        if (!currentUser || !currentUser.id) {
+            showError('Debe estar autenticado para crear una denuncia');
             return;
         }
         

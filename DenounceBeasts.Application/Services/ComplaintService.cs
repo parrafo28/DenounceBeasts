@@ -99,7 +99,7 @@ namespace DenounceBeasts.Application.Services
         {
             var complaints = await _unitOfWork.Complaints.FindAsync(c => c.IsActive);
             var filteredComplaints = complaints.Where(c =>
-                CalculateDistance(latitude, longitude, c.Latitude, c.Longitude) <= radiusKm);
+                CalculateDistance(latitude, longitude, c.Latitude.Value, c.Longitude.Value) <= radiusKm);
             return _mapper.Map<IEnumerable<ComplaintDto>>(filteredComplaints);
         }
 
