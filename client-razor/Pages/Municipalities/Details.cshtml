@@ -1,0 +1,260 @@
+@page "/municipalities/{id:int}"
+@model client_razor.Pages.Municipalities.DetailsModel
+@{
+    ViewData["Title"] = "Detalle del Municipio";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <a asp-page="Index" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+            <div>
+                <h1 class="h2 text-primary mb-0">@ViewData["Title"]</h1>
+                <p class="text-muted mb-0">Información completa del municipio</p>
+            </div>
+        </div>
+        
+        @if (Model.Municipality != null)
+        {
+            <div class="d-flex gap-2">
+                <a asp-page="Edit" asp-route-id="@Model.Municipality.Id" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete(@Model.Municipality.Id, '@Model.Municipality.Name')">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (Model.Municipality != null)
+    {
+        <div class="row">
+            <!-- Información básica -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Información Básica</h5>
+                        <span class="badge @(Model.Municipality.IsActive ? "bg-success" : "bg-danger") fs-6">
+                            @(Model.Municipality.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Código</label>
+                                <div class="form-control-plaintext">@Model.Municipality.Code</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nombre</label>
+                                <div class="form-control-plaintext">@Model.Municipality.Name</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Sectores Registrados</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge bg-info fs-6">@Model.Municipality.SectorsCount sectores</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge @(Model.Municipality.IsActive ? "bg-success" : "bg-danger") fs-6">
+                                        @(Model.Municipality.IsActive ? "Activo" : "Inactivo")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha de Creación</label>
+                                <div class="form-control-plaintext">@Model.Municipality.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Última Actualización</label>
+                                <div class="form-control-plaintext">@Model.Municipality.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Estadísticas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-12 mb-3">
+                                <div class="border rounded p-3">
+                                    <h4 class="text-primary mb-1">@Model.Municipality.SectorsCount</h4>
+                                    <small class="text-muted">Total de Sectores</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (Model.Municipality.SectorsCount > 0)
+                        {
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-success mb-1">@Model.ActiveSectorsCount</h5>
+                                        <small class="text-muted">Activos</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-danger mb-1">@Model.InactiveSectorsCount</h5>
+                                        <small class="text-muted">Inactivos</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sectores del municipio -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sectores del Municipio</h5>
+                <a asp-page="/Sectors/Create" asp-route-municipalityId="@Model.Municipality.Id" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> Agregar Sector
+                </a>
+            </div>
+            <div class="card-body">
+                @if (!Model.Sectors.Any())
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-map-marker-alt text-muted fa-3x mb-3"></i>
+                        <p class="text-muted">Este municipio no tiene sectores registrados.</p>
+                        <a asp-page="/Sectors/Create" asp-route-municipalityId="@Model.Municipality.Id" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Crear Primer Sector
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sector in Model.Sectors)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold">@sector.Code</span>
+                                        </td>
+                                        <td>@sector.Name</td>
+                                        <td>
+                                            @if (sector.IsActive)
+                                            {
+                                                <span class="badge bg-success">Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inactivo</span>
+                                            }
+                                        </td>
+                                        <td>@sector.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a asp-page="/Sectors/Details" asp-route-id="@sector.Id" 
+                                                   class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a asp-page="/Sectors/Edit" asp-route-id="@sector.Id" 
+                                                   class="btn btn-sm btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Estado de error -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                        <h5>Municipio no encontrado</h5>
+                        <p class="text-muted">El municipio que busca no existe o no está disponible.</p>
+                        <a asp-page="Index" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Volver a la Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar el municipio <strong id="municipalityNameToDelete"></strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer y eliminará también todos los sectores asociados.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" style="display: inline;">
+                    <input type="hidden" name="id" id="municipalityIdToDelete" />
+                    <button type="submit" asp-page-handler="Delete" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('municipalityIdToDelete').value = id;
+            document.getElementById('municipalityNameToDelete').textContent = name;
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        // Mostrar mensajes de éxito/error
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    </script>
+}

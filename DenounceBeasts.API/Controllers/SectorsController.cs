@@ -1,164 +1,168 @@
-﻿using DenounceBeasts.API.Data;
-using DenounceBeasts.API.DTOs;
-using DenounceBeasts.API.Entities;
+﻿using DenounceBeasts.Application.Contracts;
+using DenounceBeasts.Application.DTOs;
+using DenounceBeasts.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
-    //[Route("api/Sectors")]
     [Route("api/[controller]")]
+    [Authorize(Policy = "AdminOnly")]
     public class SectorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISectorService _sectorService;
 
-        public SectorsController(ApplicationDbContext context)
+        //  private readonly GenericRepository<Sector> repository;
+
+        // private readonly ApplicationDbContext _context;
+        // private readonly SectorRepository _sectorRepository;
+        //private readonly UnitOfWork _unitOfWork;
+
+
+        public SectorsController(
+            ISectorService sectorService
+            //ApplicationDbContext context,
+            //    SectorRepository sectorRepository,
+            //  GenericRepository<Sector> repository,
+            // UnitOfWork unitOfWork
+            )
         {
-            _context = context;
+            // this.repository = repository;
+            // _context = context;
+            // _sectorRepository = sectorRepository;
+            //_unitOfWork = unitOfWork;
+            this._sectorService = sectorService;
         }
 
-        // GET: api/Sectors
         [HttpGet]
-        public IActionResult GetSectors()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSectors()
         {
-            var sectors = _context.Sectors.ToList();
+            // var sectors = await _sectorRepository.GetAllSectorsAsync();
 
-            var sectorsResponse = new List<SectorDto>();
-
-            //foreach (var s in sectors)
-            //{
-
-            //    var sectorDto = new SectorDto
-            //    {
-            //        Id = s.Id,
-            //        Code = s.Code,
-            //        Name = s.Name,
-            //        MunicipalityId = s.MunicipalityId
-            //    };
-            //    sectorsResponse.Add(sectorDto);
-            //}
-
-            sectorsResponse = sectors.Select(s => new SectorDto
-            {
-                Id = s.Id,
-                Code = s.Code,
-                Name = s.Name,
-                MunicipalityId = s.MunicipalityId
-            }).ToList();
-             
-            return Ok(sectorsResponse);
+            // return Ok(await _sectorRepository.GetAllSectorsAsync());
+            // var status = await _unitOfWork.Status.GetAllAsync();
+            var setors = await _sectorService.GetSectors();
+            return Ok(setors);
         }
 
-        // GET: api/Sectors/5
+        [HttpGet]
+        [Route("with-municipality")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSectorsWithMunicipality()
+        {
+            //var sectors = await _unitOfWork.Sectors.GetSectorWithTheirMunicipalityAsync();
+
+            //var sectorsResponse = new List<SectorDto>();
+
+            //sectorsResponse = sectors.Select(s => new SectorDto
+            //{
+            //    Id = s.Id,
+            //    Code = s.Code,
+            //    Name = s.Name,
+            //    MunicipalityId = s.MunicipalityId,
+            //    MunicipalityName = s.Municipality.Name,
+            //    MunicipalityCode = s.Municipality.Code
+            //    //Municipality = new MunicipalityDto
+            //    //{
+            //    //    Id = s.Municipality.Id,
+            //    //    Code = s.Municipality.Code,
+            //    //    Name = s.Municipality.Name
+            //    //}
+
+            //}).ToList();
+
+            return Ok(await _sectorService.GetSectorsWithMunicipality());
+        }
+
+        [HttpGet]
+        [Route("by-municipality")]
+        public async Task<IActionResult> GetSectorsByMunicipality([FromQuery] int municipalityId)
+        {
+            return Ok(await _sectorService.GetSectorsByMunicipality(municipalityId));
+
+        }
+
         [HttpGet("{id}")]
-        public IActionResult GetSector(int id)
+        public async Task<IActionResult> GetSector(int id)
         {
-            //Sector sector = new Sector();
-            //var sector = new Sector();
-            // Sector sector;
-            // var sector;
-            //foreach (var item in _sectors)
+            //var sector = await _unitOfWork.Sectors.GetByIdAsync(id);
+            //if (sector == null)
             //{
-            //    if (item.Id == id)
-            //    {
-            //        sector = item;
-            //        //  return Ok(sector);
-            //        break;
-            //    }
+            //    return NotFound($"Sector with ID {id} not found.");
             //}
-            //sector = _sectors.FirstOrDefault(s => s.Id == id);
-            var sector = _context.Sectors.Where(s => s.Id == id).FirstOrDefault();
-            if (sector == null)
-            {
-                return NotFound($"Sector with ID {id} not found.");
-            }
-            var sectorResponse = new SectorDto
-            {
-                Id = sector.Id,
-                Code = sector.Code,
-                Name = sector.Name,
-                MunicipalityId = sector.MunicipalityId
-            };
-            return Ok(sectorResponse); 
+            //var sectorResponse = new SectorDto
+            //{
+            //    Id = sector.Id,
+            //    Code = sector.Code,
+            //    Name = sector.Name,
+            //    MunicipalityId = sector.MunicipalityId
+            //};
+            return Ok(await _sectorService.GetSector(id));
         }
 
-        // POST: api/Sectors
         [HttpPost]
-        public IActionResult CreateSector([FromBody] CreateSectorDto request)
+        public async Task<IActionResult> CreateSector([FromBody] CreateSectorDto request)
         {
-            if (request == null)
-            {
-                return BadRequest("Sector cannot be null.");
-            }
-            //  sector.Id = _sectors.Max(s => s.Id) + 1; 
-            // sector.Id = _sectors.Count() + 1;
+            //if (request == null)
+            //{
+            //    return BadRequest("Sector cannot be null.");
+            //}
 
-            var sector = new Sector
-            {
-                Code = request.Code,
-                CreatedAt = DateTime.Now,
-                MunicipalityId = request.MunicipalityId,
-                Name = request.Name,
-            };
-            _context.Sectors.Add(sector);
-            _context.SaveChanges();
-            return Ok(new { id = sector.Id });
+            //var sector = new Sector
+            //{
+            //    Code = request.Code,
+            //    CreatedAt = DateTime.Now,
+            //    MunicipalityId = request.MunicipalityId,
+            //    Name = request.Name,
+            //};
+            ////var response = await _sectorRepository.AddSectorAsync(sector);
+            ////   await _unitOfWork.BeginTransactionAsync();
+            //sector = await _unitOfWork.Sectors.AddAsync(sector);
+            //await _unitOfWork.CompleteAsync();
+            //// await _unitOfWork.CommitTransactionAsync();
+            var responseId = await _sectorService.CreateSector(request);
+            return Ok(new { id = responseId });
 
         }
 
-        //[HttpPut]
-        //public IActionResult UpdateSector([FromBody] Sector sector)
-        //{
-        //    if (sector == null  )
-        //    {
-        //        return BadRequest("Sector is null or ID mismatch.");
-        //    }
-        //    var existingSector = _sectors.FirstOrDefault(s => s.Id == sector.Id);
-        //    if (existingSector == null)
-        //    {
-        //        return NotFound($"Sector with ID {sector.Id} not found.");
-        //    }
-        //    existingSector.Name = sector.Name;
-        //    existingSector.Code = sector.Code;
-        //    existingSector.UpdatedAt = DateTime.Now;
-        //    //return Ok(existingSector);
-        //    return Ok(_sectors);
-        //}
-        //// PUT: api/Sectors/5
 
         [HttpPut("{id}")]
-        public IActionResult UpdateSector(int id, [FromBody] UpdateSectorDto request)
+        public async Task<IActionResult> UpdateSector(int id, [FromBody] UpdateSectorDto request)
         {
-            if (request == null || request.Id != id)
-            {
-                return BadRequest("Sector is null or ID mismatch.");
-            }
-            var existingSector = _context.Sectors.FirstOrDefault(s => s.Id == id);
-            if (existingSector == null)
-            {
-                return NotFound($"Sector with ID {id} not found.");
-            }
-            existingSector.Name = request.Name;
-            existingSector.Code = request.Code;
-            existingSector.UpdatedAt = DateTime.Now;
-            existingSector.MunicipalityId = request.MunicipalityId;
-            _context.Sectors.Update(existingSector);
-            _context.SaveChanges();
-            // return Ok(existingSector);
+            //if (request == null || request.Id != id)
+            //{
+            //    return BadRequest("Sector is null or ID mismatch.");
+            //}
+            ////var existingSector = _sectorRepository.GetSectorByIdAsync(id).Result;
+            //var existingSector = await _unitOfWork.Sectors.GetByIdAsync(id);
+            //if (existingSector == null)
+            //{
+            //    return NotFound($"Sector with ID {id} not found.");
+            //}
+            //existingSector.Name = request.Name;
+            //existingSector.Code = request.Code;
+            //existingSector.UpdatedAt = DateTime.Now;
+            //existingSector.MunicipalityId = request.MunicipalityId;
+            ////  _sectorRepository.UpdateSectorAsync(existingSector).Wait();
+            //await _unitOfWork.Sectors.UpdateAsync(existingSector);
+            //await _unitOfWork.CompleteAsync();
+            await _sectorService.UpdateSector(id, request);
             return NoContent();
         }
 
-        // DELETE: api/Sectors/5
         [HttpDelete("{id}")]
-        public IActionResult DeleteSector(int id)
+        public async Task<IActionResult> DeleteSector(int id)
         {
-            var sector = _context.Sectors.FirstOrDefault(s => s.Id == id);
-            if (sector == null)
-            {
-                return NotFound($"Sector with ID {id} not found.");
-            }
-            _context.Sectors.Remove(sector);
-            _context.SaveChanges();
+            //var sector = _unitOfWork.Sectors.GetByIdAsync(id);
+            //if (sector == null)
+            //{
+            //    return NotFound($"Sector with ID {id} not found.");
+            //}
+            //await _unitOfWork.Sectors.DeleteAsync(id);
+            //await _unitOfWork.CompleteAsync();
+            await _sectorService.DeleteSector(id);
             return NoContent();
         }
     }

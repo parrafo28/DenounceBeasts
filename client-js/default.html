@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DenounceBeasts - Sistema de Denuncias Ciudadanas</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #bcb5b5;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #6da5b9;
+        }
+
+        /*    p {
+            color: #a3296e;
+        } */
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #paragraph1 {
+            color: #09e896;
+            font-weight: bold;
+        }
+
+        .paragraphs-specials {
+            color: #a3296e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>DenounceBeasts</h1>
+        <nav>
+            <ul>
+                <li><a href="/index.html">Inicio</a></li>
+                <li><a href="/about.html">Acerca de</a></li>
+                <li><a href="/contact.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <h1>Bienvenido a DenounceBeasts</h1>
+        <p id="paragraph1">Este es un sistema de denuncias ciudadanas para reportar animales en peligro o maltratados.
+        </p>
+        <p class="paragraphs-specials">
+            Para comenzar, por favor, inicia sesión o regístrate.
+        </p>
+        <!--  <b> -->
+
+        <!--   <p style="color: red;"> -->
+        <p class="paragraphs-specials">
+            Este es un sistema de denuncias ciudadanas para reportar animales en peligro o maltratados.
+        </p>
+
+        <!--       </b> -->
+        <a>Ir al Index</a>
+        <a href="/index.html">Ir al Index</a>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Ejemplo.png" alt="Logo de DenounceBeasts"
+            width="200">
+        <button onclick="displayMessage()">¡Comenzar!</button>
+        <i src="https://upload.wikimedia.org/wikipedia/commons/6/64/Ejemplo.png" alt="Logo de DenounceBeasts"
+            width="200"></i>
+        <input type="text" placeholder="Buscar..." />
+        <input type="email" placeholder="Correo electrónico" />
+        <input type="password" placeholder="Contraseña" />
+
+        <textarea rows="4" cols="50" placeholder="Escribe tu denuncia aquí..."></textarea>
+        <input type="checkbox" id="terms" name="terms">
+        <label for="terms">Acepto los términos y condiciones</label>
+        <select>
+            <option value="perro">Perro</option>
+            <option value="gato">Gato</option>
+            <option value="otro">Otro</option>
+        </select>
+        <form action="/submit" method="post">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="description">Descripción:</label>
+            <textarea id="description" name="description" required></textarea>
+            <button type="submit">Enviar Denuncia</button>
+        </form>
+
+        <label>Urgente</label>S
+
+        <input class="radios-specials" type="radio" name="priority" value="1"> Si
+        <input class="radios-specials" type="radio" name="priority" value="0"> No
+        <table border="1" cellpadding="5" cellspacing="1">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Fecha de Denuncia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Perro Callejero</td>
+                    <td>Perro encontrado en la calle, parece estar herido.</td>
+                    <td>2023-10-01</td>
+                </tr>
+                <tr>
+                    <td>Gato Abandonado</td>
+                    <td>Gato abandonado en un parque, necesita atención.</td>
+                    <td>2023-10-02</td>
+                </tr>
+                <tr>
+                    <td colspan="2">Gato Abandonado</td>
+                    <td>Gato abandonado en un parque, necesita atención.</td>
+                </tr>
+            </tbody>
+        </table>
+        <footer>
+            <p>&copy; 2023 DenounceBeasts. Todos los derechos reservados.</p>
+        </footer>
+
+
+        <script>
+
+            function displayMessage() {
+                var welcomeMessage = "Bienvenido a DenounceBeasts";
+
+                var nameValue = document.getElementById("name").value;
+                if (nameValue) {
+                    welcomeMessage += ", " + nameValue;
+                }
+                alert(welcomeMessage);
+
+                let radios = document.querySelectorAll('.radios-specials');
+                let radios2 = document.getElementsByClassName('radios-specials');
+
+                for (let i = 0; i < radios2.length; i++) {
+                    if (radios2[i].checked) {
+                        console.log("Valor seleccionado: " + radios2[i].value);
+                    }
+                }
+            }
+
+
+
+            console.log("Bienvenido a DenounceBeasts");
+
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DenounceBeasts - Sistema Avanzado de Denuncias Ciudadanas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/advanced-styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Sistema avanzado para la gestión de denuncias ciudadanas con tecnología moderna">
+    <meta name="keywords" content="denuncias, ciudadanas, gestión, municipio, sectores">
+    <meta name="author" content="DenounceBeasts Team">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="DenounceBeasts - Sistema de Denuncias">
+    <meta property="og:description" content="Sistema avanzado para la gestión de denuncias ciudadanas">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://denouncebeasts.com">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" as="script">
+</head>
+<body class="bg-light">
+    <!-- Loading Overlay -->
+    <div id="globalLoadingOverlay" class="loading-overlay d-none">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div class="loading-text mt-3">Cargando...</div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-megaphone me-2"></i>
+                DenounceBeasts Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-tab="dashboard">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-folder"></i> Catálogos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" data-tab="municipalities">
+                                <i class="bi bi-geo-alt"></i> Municipios
+                            </a></li>
+                            <li><a class="dropdown-item" data-tab="sectors">
+                                <i class="bi bi-map"></i> Sectores
+                            </a></li>
+                            <li><a class="dropdown-item" data-tab="complaint-types">
+                                <i class="bi bi-tags"></i> Tipos de Denuncia
+                            </a></li>
+                            <li><a class="dropdown-item" data-tab="status">
+                                <i class="bi bi-flag"></i> Estados
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-tab="complaints">
+                            <i class="bi bi-exclamation-triangle"></i> Denuncias
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-tools"></i> Herramientas
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" id="exportDataBtn">
+                                <i class="bi bi-download"></i> Exportar Datos
+                            </a></li>
+                            <li><a class="dropdown-item" id="clearCacheBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Limpiar Caché
+                            </a></li>
+                            <li><a class="dropdown-item" id="viewLogsBtn">
+                                <i class="bi bi-journal-text"></i> Ver Logs
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" id="settingsBtn">
+                                <i class="bi bi-gear"></i> Configuración
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <span class="navbar-text" id="connectionStatus">
+                            <i class="bi bi-wifi text-success" title="Conectado"></i>
+                        </span>
+                    </li>
+                    <!-- Auth container will be inserted here -->
+                    <div id="authNavbarContainer" class="navbar-nav"></div>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid mt-4">
+        <!-- Toast Container -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="mb-4">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                            <small class="text-muted">Resumen del sistema</small>
+                        </h2>
+                    </div>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="row mb-4" id="statsCards">
+                    <!-- Cards will be populated dynamically -->
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-clock-history"></i> Actividad Reciente
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentActivity" class="activity-feed">
+                                    <!-- Activity items will be populated -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-info-circle"></i> Estado del Sistema
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="systemStatus">
+                                    <!-- System status will be populated -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Municipalities Tab -->
+            <div class="tab-pane fade" id="municipalities" role="tabpanel">
+                <div id="municipalitiesSection"></div>
+            </div>
+
+            <!-- Sectors Tab -->
+            <div class="tab-pane fade" id="sectors" role="tabpanel">
+                <div id="sectorsSection"></div>
+            </div>
+
+            <!-- Complaint Types Tab -->
+            <div class="tab-pane fade" id="complaint-types" role="tabpanel">
+                <div id="complaintTypesSection"></div>
+            </div>
+
+            <!-- Status Tab -->
+            <div class="tab-pane fade" id="status" role="tabpanel">
+                <div id="statusSection"></div>
+            </div>
+
+            <!-- Complaints Tab -->
+            <div class="tab-pane fade" id="complaints" role="tabpanel">
+                <div id="complaintsSection"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Modals -->
+    
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-gear"></i> Configuración del Sistema
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Configuración de UI</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Elementos por página</label>
+                                <select class="form-select" id="itemsPerPageSetting">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableAnimations" checked>
+                                    <label class="form-check-label">Habilitar animaciones</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Configuración de Caché</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableCache" checked>
+                                    <label class="form-check-label">Habilitar caché</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">TTL de caché (minutos)</label>
+                                <input type="number" class="form-control" id="cacheTtl" value="5" min="1" max="60">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Modal -->
+    <div class="modal fade" id="logsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-journal-text"></i> Logs del Sistema
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <select class="form-select form-select-sm" id="logLevelFilter" style="width: auto;">
+                                <option value="">Todos los niveles</option>
+                                <option value="debug">Debug</option>
+                                <option value="info">Info</option>
+                                <option value="warn">Warn</option>
+                                <option value="error">Error</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" id="exportLogsBtn">
+                                <i class="bi bi-download"></i> Exportar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" id="clearLogsBtn">
+                                <i class="bi bi-trash"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="logsContainer" class="logs-container">
+                        <!-- Logs will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTitle">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle text-warning fs-1 me-3"></i>
+                        <div>
+                            <p class="mb-1" id="confirmModalMessage">¿Está seguro de que desea realizar esta acción?</p>
+                            <small class="text-muted" id="confirmModalSubtext">Esta acción no se puede deshacer.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalAction">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Configuration -->
+    <script src="config/app.config.js"></script>
+    
+    <!-- Utilities -->
+    <script src="js/utils/logger.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/validator.js"></script>
+    <script src="js/utils/cache.js"></script>
+    <script src="js/utils/event-emitter.js"></script>
+    
+    <!-- Services -->
+    <script src="js/services/api-client.js"></script>
+    <script src="js/services/base-service.js"></script>
+    <script src="js/services/municipality-service.js"></script>
+    <script src="js/services/auth-service.js"></script>
+    <script src="js/services/index.js"></script>
+    
+    <!-- Components -->
+    <script src="js/components/data-table.js"></script>
+    <script src="js/components/form-manager.js"></script>
+    <script src="js/components/modal-manager.js"></script>
+    <script src="js/components/notification-manager.js"></script>
+    <script src="js/components/auth-modal.js"></script>
+    <script src="js/components/auth-navbar.js"></script>
+    
+    <!-- Main Application -->
+    <script src="js/app.js"></script>
+    
+    <!-- Service Worker Registration (for offline support) -->
+    <script>
+        if ('serviceWorker' in navigator && AppConfig.features.enableOfflineMode) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => logger.info('Service Worker registered:', registration))
+                .catch(error => logger.error('Service Worker registration failed:', error));
+        }
+    </script>
+</body>
+</html>

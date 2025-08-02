@@ -1,0 +1,59 @@
+@{
+    ViewData["Title"] = "Acceso Denegado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="bi bi-shield-exclamation text-danger" style="font-size: 6rem;"></i>
+            </div>
+            
+            <h1 class="display-4 text-danger">Acceso Denegado</h1>
+            <p class="lead mb-4">
+                No tienes permisos para acceder a este recurso.
+            </p>
+            
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Atención:</strong> Para acceder a esta página necesitas tener los permisos apropiados 
+                o iniciar sesión con una cuenta que tenga acceso.
+            </div>
+            
+            <div class="d-grid gap-2 d-md-block">
+                <a asp-action="Login" asp-controller="Auth" 
+                   asp-route-returnUrl="@ViewData["ReturnUrl"]" 
+                   class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Iniciar Sesión
+                </a>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-house me-2"></i>
+                    Ir al Inicio
+                </a>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(ViewData["ReturnUrl"] as string))
+            {
+                <div class="mt-4">
+                    <p class="text-muted small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Después de iniciar sesión serás redirigido a la página solicitada.
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-focus login button after 2 seconds for better UX
+            setTimeout(function() {
+                $('.btn-primary').focus();
+            }, 2000);
+        });
+    </script>
+}

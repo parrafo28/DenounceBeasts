@@ -1,0 +1,206 @@
+@page "/auth/register"
+@model client_razor.Pages.Auth.RegisterModel
+@{
+    ViewData["Title"] = "Crear Cuenta";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-plus text-success" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3">Crear Cuenta</h2>
+                        <p class="text-muted">Únete a DenounceBeasts y ayuda a tu comunidad</p>
+                    </div>
+
+                    <form method="post" id="registerForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegisterRequest.FirstName" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Nombre
+                                </label>
+                                <input asp-for="RegisterRequest.FirstName" class="form-control" 
+                                       placeholder="Tu nombre" autocomplete="given-name" />
+                                <span asp-validation-for="RegisterRequest.FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegisterRequest.LastName" class="form-label">
+                                    <i class="bi bi-person me-1"></i>Apellido
+                                </label>
+                                <input asp-for="RegisterRequest.LastName" class="form-control" 
+                                       placeholder="Tu apellido" autocomplete="family-name" />
+                                <span asp-validation-for="RegisterRequest.LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="RegisterRequest.Email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email
+                            </label>
+                            <input asp-for="RegisterRequest.Email" class="form-control" 
+                                   placeholder="tu@email.com" autocomplete="email" />
+                            <span asp-validation-for="RegisterRequest.Email" class="text-danger"></span>
+                            <div class="email-feedback text-muted small"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegisterRequest.Phone" class="form-label">
+                                    <i class="bi bi-telephone me-1"></i>Teléfono
+                                    <span class="text-muted">(opcional)</span>
+                                </label>
+                                <input asp-for="RegisterRequest.Phone" class="form-control" 
+                                       placeholder="(809) 123-4567" autocomplete="tel" />
+                                <span asp-validation-for="RegisterRequest.Phone" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegisterRequest.Address" class="form-label">
+                                    <i class="bi bi-geo-alt me-1"></i>Dirección
+                                    <span class="text-muted">(opcional)</span>
+                                </label>
+                                <input asp-for="RegisterRequest.Address" class="form-control" 
+                                       placeholder="Tu dirección" autocomplete="street-address" />
+                                <span asp-validation-for="RegisterRequest.Address" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RegisterRequest.Password" class="form-label">
+                                    <i class="bi bi-lock me-1"></i>Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="RegisterRequest.Password" class="form-control" 
+                                           placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="RegisterRequest.Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="RegisterRequest.ConfirmPassword" class="form-label">
+                                    <i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="RegisterRequest.ConfirmPassword" class="form-control" 
+                                           placeholder="Repite tu contraseña" autocomplete="new-password" />
+                                    <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="RegisterRequest.ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3" id="registerButton">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                            <i class="bi bi-person-plus me-2"></i>
+                            Crear Cuenta
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <hr class="my-4">
+                        <p class="mb-0">
+                            ¿Ya tienes cuenta? 
+                            <a asp-page="/Auth/Login" class="text-decoration-none">
+                                <strong>Inicia sesión aquí</strong>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('#togglePassword').click(function() {
+                const passwordField = $('#RegisterRequest_Password');
+                const icon = $(this).find('i');
+                
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
+            $('#toggleConfirmPassword').click(function() {
+                const passwordField = $('#RegisterRequest_ConfirmPassword');
+                const icon = $(this).find('i');
+                
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
+            // Email availability check
+            let emailTimeout;
+            $('#RegisterRequest_Email').on('input', function() {
+                const email = $(this).val();
+                const feedback = $('.email-feedback');
+                
+                clearTimeout(emailTimeout);
+                
+                if (email && email.includes('@')) {
+                    emailTimeout = setTimeout(function() {
+                        $.ajax({
+                            url: '/api/auth/check-email',
+                            method: 'GET',
+                            data: { email: email },
+                            success: function(response) {
+                                if (!response.exists) {
+                                    feedback.removeClass('text-danger').addClass('text-success');
+                                    feedback.html('<i class="bi bi-check-circle me-1"></i>Email disponible');
+                                } else {
+                                    feedback.removeClass('text-success').addClass('text-danger');
+                                    feedback.html('<i class="bi bi-x-circle me-1"></i>Este email ya está registrado');
+                                }
+                            },
+                            error: function() {
+                                feedback.removeClass('text-success').addClass('text-muted');
+                                feedback.text('Error al verificar email');
+                            }
+                        });
+                    }, 500);
+                } else {
+                    feedback.empty();
+                }
+            });
+
+            // Form submission with loading state
+            $('#registerForm').on('submit', function() {
+                const button = $('#registerButton');
+                const spinner = button.find('.spinner-border');
+                
+                button.prop('disabled', true);
+                spinner.removeClass('d-none');
+                
+                // Re-enable after 10 seconds in case of error
+                setTimeout(function() {
+                    button.prop('disabled', false);
+                    spinner.addClass('d-none');
+                }, 10000);
+            });
+
+            // Auto-focus first name field
+            $('#RegisterRequest_FirstName').focus();
+        });
+    </script>
+}

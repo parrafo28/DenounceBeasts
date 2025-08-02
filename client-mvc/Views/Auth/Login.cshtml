@@ -1,0 +1,110 @@
+@model DenounceBeasts.WebClient.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-lock text-primary" style="font-size: 3rem;"></i>
+                    <h2 class="mt-3">Iniciar Sesión</h2>
+                    <p class="text-muted">Accede a tu cuenta de DenounceBeasts</p>
+                </div>
+
+                <form asp-action="Login" asp-controller="Auth" method="post" id="loginForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">
+                            <i class="bi bi-envelope me-1"></i>Email
+                        </label>
+                        <input asp-for="Email" class="form-control form-control-lg" 
+                               placeholder="tu@email.com" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label">
+                            <i class="bi bi-lock me-1"></i>Contraseña
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="Password" class="form-control form-control-lg" 
+                                   placeholder="Tu contraseña" autocomplete="current-password" />
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label">
+                            Recordarme en este dispositivo
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="loginButton">
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Iniciar Sesión
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <hr class="my-4">
+                    <p class="mb-0">
+                        ¿No tienes cuenta? 
+                        <a asp-action="Register" asp-controller="Auth" class="text-decoration-none">
+                            <strong>Regístrate aquí</strong>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('#togglePassword').click(function() {
+                const passwordField = $('#Password');
+                const icon = $(this).find('i');
+                
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+
+            // Form submission with loading state
+            $('#loginForm').on('submit', function() {
+                const button = $('#loginButton');
+                const spinner = button.find('.spinner-border');
+                
+                button.prop('disabled', true);
+                spinner.removeClass('d-none');
+                
+                // Re-enable after 5 seconds in case of error
+                setTimeout(function() {
+                    button.prop('disabled', false);
+                    spinner.addClass('d-none');
+                }, 5000);
+            });
+
+            // Auto-focus email field
+            $('#Email').focus();
+        });
+    </script>
+}

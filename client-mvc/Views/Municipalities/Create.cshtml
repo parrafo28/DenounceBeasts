@@ -1,0 +1,172 @@
+@model MunicipalityCreateViewModel
+@{
+    ViewData["Title"] = "Crear Municipio";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Municipios</a></li>
+                <li class="breadcrumb-item active">Crear Municipio</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0">
+            <i class="fas fa-plus text-primary me-2"></i>
+            Crear Nuevo Municipio
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-city me-2"></i>
+                    Información del Municipio
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" id="municipalityForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="Ej: Santo Domingo">
+                            <span asp-validation-for="Name" class="invalid-feedback"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Code" class="form-label"></label>
+                            <input asp-for="Code" class="form-control text-uppercase" placeholder="Ej: SD-01" maxlength="10">
+                            <span asp-validation-for="Code" class="invalid-feedback"></span>
+                            <div class="form-text">Código único para identificar el municipio</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input">
+                            <label asp-for="IsActive" class="form-check-label">
+                                El municipio está activo
+                            </label>
+                        </div>
+                        <div class="form-text">Los municipios inactivos no aparecerán en las listas de selección</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>
+                            Guardar Municipio
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información de Ayuda
+                </h6>
+            </div>
+            <div class="card-body">
+                <h6 class="text-primary">Nombre del Municipio</h6>
+                <p class="small text-muted mb-3">
+                    Ingrese el nombre oficial del municipio. Debe ser único y descriptivo.
+                </p>
+                
+                <h6 class="text-primary">Código</h6>
+                <p class="small text-muted mb-3">
+                    Código alfanumérico único para identificar el municipio. Se recomienda usar un formato estándar.
+                </p>
+                
+                <h6 class="text-primary">Estado</h6>
+                <p class="small text-muted">
+                    Los municipios activos aparecerán disponibles para la creación de sectores y denuncias.
+                </p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Consejos
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small text-muted mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use nombres oficiales completos
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Los códigos deben ser únicos
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Verifique la información antes de guardar
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Real-time code validation
+            let codeTimeout;
+            $('#Code').on('input', function() {
+                const code = $(this).val().toUpperCase();
+                $(this).val(code);
+                
+                clearTimeout(codeTimeout);
+                codeTimeout = setTimeout(function() {
+                    if (code.length >= 2) {
+                        checkCodeUniqueness(code);
+                    }
+                }, 500);
+            });
+            
+            function checkCodeUniqueness(code) {
+                $.get('/Municipalities/CheckCodeUnique', { code: code })
+                    .done(function(response) {
+                        const codeField = $('#Code');
+                        const feedback = codeField.siblings('.invalid-feedback');
+                        
+                        if (!response.isUnique) {
+                            codeField.addClass('is-invalid');
+                            feedback.text('El código ya existe en el sistema');
+                        } else {
+                            codeField.removeClass('is-invalid');
+                            feedback.text('');
+                        }
+                    });
+            }
+            
+            // Form submission
+            $('#municipalityForm').on('submit', function(e) {
+                $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+            });
+            
+            // Auto-uppercase code field
+            $('#Code').on('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+    </script>
+}

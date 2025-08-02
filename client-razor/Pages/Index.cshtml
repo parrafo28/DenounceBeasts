@@ -1,0 +1,107 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 text-primary">
+        <i class="fas fa-shield-alt"></i> DenounceBeasts
+    </h1>
+    <p class="lead">Sistema de Gestión de Denuncias Ciudadanas</p>
+    <p class="text-muted">Cliente Razor Pages para la API de DenounceBeasts</p>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-building"></i> Municipios
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Gestione los municipios del sistema. Puede crear, editar, visualizar y eliminar municipios,
+                    así como gestionar sus estados activos/inactivos.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Crear nuevos municipios</li>
+                    <li><i class="fas fa-check text-success"></i> Editar información existente</li>
+                    <li><i class="fas fa-check text-success"></i> Ver detalles y sectores asociados</li>
+                    <li><i class="fas fa-check text-success"></i> Gestionar estados activo/inactivo</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a asp-page="/Municipalities/Index" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Ir a Municipios
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marker-alt"></i> Sectores
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Administre los sectores dentro de cada municipio. Cada sector pertenece a un municipio
+                    y puede tener su propio estado de actividad.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Agregar sectores a municipios</li>
+                    <li><i class="fas fa-check text-success"></i> Actualizar información de sectores</li>
+                    <li><i class="fas fa-check text-success"></i> Filtrar por municipio</li>
+                    <li><i class="fas fa-check text-success"></i> Control de códigos únicos</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a asp-page="/Sectors/Index" class="btn btn-info text-white">
+                    <i class="fas fa-arrow-right"></i> Ir a Sectores
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Acerca del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Características Técnicas:</h6>
+                        <ul>
+                            <li>ASP.NET Core 8.0 Razor Pages</li>
+                            <li>Bootstrap 5 para el diseño responsivo</li>
+                            <li>Serilog para logging estructurado</li>
+                            <li>Polly para resiliencia en llamadas HTTP</li>
+                            <li>Font Awesome para iconografía</li>
+                            <li>Toastr para notificaciones</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Funcionalidades:</h6>
+                        <ul>
+                            <li>CRUD completo para municipios y sectores</li>
+                            <li>Validación de datos en cliente y servidor</li>
+                            <li>Búsqueda y filtros avanzados</li>
+                            <li>Manejo de estados activo/inactivo</li>
+                            <li>Relaciones entre entidades</li>
+                            <li>Interfaz intuitiva y responsiva</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

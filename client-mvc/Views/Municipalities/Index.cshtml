@@ -1,0 +1,219 @@
+@model MunicipalityListViewModel
+@{
+    ViewData["Title"] = "Gestión de Municipios";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="mb-0">
+            <i class="fas fa-city text-primary me-2"></i>
+            Gestión de Municipios
+        </h2>
+        <p class="text-muted">Administre los municipios del sistema</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Nuevo Municipio
+        </a>
+    </div>
+</div>
+
+<!-- Search and Statistics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get" class="d-flex">
+            <div class="search-container flex-grow-1 me-2">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" name="search" value="@Model.SearchQuery" 
+                       placeholder="Buscar municipios por nombre o código...">
+            </div>
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="fas fa-search"></i>
+            </button>
+            @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times"></i>
+                </a>
+            }
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div class="d-flex justify-content-end align-items-center">
+            <div class="me-3">
+                <span class="badge bg-primary fs-6">Total: @Model.TotalCount</span>
+                <span class="badge bg-success fs-6">Activos: @Model.ActiveCount</span>
+                <span class="badge bg-secondary fs-6">Inactivos: @Model.InactiveCount</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Municipalities Table -->
+<div class="card">
+    <div class="card-body p-0">
+        @if (Model.Municipalities.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Código</th>
+                            <th>Estado</th>
+                            <th>Sectores</th>
+                            <th>Creado</th>
+                            <th width="200">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var municipality in Model.Municipalities)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@municipality.Id</td>
+                                <td>
+                                    <div class="fw-semibold">@municipality.Name</div>
+                                </td>
+                                <td>
+                                    <code class="bg-light px-2 py-1 rounded">@municipality.Code</code>
+                                </td>
+                                <td>
+                                    @if (municipality.IsActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times-circle me-1"></i>
+                                            Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (municipality.SectorsCount > 0)
+                                    {
+                                        <a asp-action="Sectors" asp-route-id="@municipality.Id" class="badge bg-info text-decoration-none">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            @municipality.SectorsCount
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark">0</span>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        @municipality.CreatedAt.ToString("dd/MM/yyyy")
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@municipality.Id" 
+                                           class="btn btn-sm btn-outline-info" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@municipality.Id" 
+                                           class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Sectors" asp-route-id="@municipality.Id" 
+                                           class="btn btn-sm btn-outline-success" title="Ver Sectores">
+                                            <i class="fas fa-map"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@municipality.Id" 
+                                           class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-city fa-3x text-muted mb-3"></i>
+                @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                {
+                    <h5 class="text-muted">No se encontraron municipios</h5>
+                    <p class="text-muted">No hay municipios que coincidan con la búsqueda "@Model.SearchQuery"</p>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Ver Todos los Municipios
+                    </a>
+                }
+                else
+                {
+                    <h5 class="text-muted">No hay municipios registrados</h5>
+                    <p class="text-muted">Comience creando el primer municipio del sistema</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Crear Primer Municipio
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.Municipalities.Any())
+{
+    <!-- Summary Card -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h6 class="text-muted mb-1">Total de Municipios</h6>
+                            <h4 class="text-primary mb-0">@Model.TotalCount</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted mb-1">Municipios Activos</h6>
+                            <h4 class="text-success mb-0">@Model.ActiveCount</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted mb-1">Total de Sectores</h6>
+                            <h4 class="text-info mb-0">@Model.Municipalities.Sum(m => m.SectorsCount)</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-submit search form with delay
+            let searchTimeout;
+            $('input[name="search"]').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    $('form').submit();
+                }, 500);
+            });
+
+            // Confirm delete actions
+            $('a[href*="/Delete/"]').click(function(e) {
+                if (!confirmDelete('¿Está seguro de eliminar este municipio? Esta acción no se puede deshacer.')) {
+                    e.preventDefault();
+                }
+            });
+
+            // Add tooltips
+            $('[title]').tooltip();
+        });
+    </script>
+}
