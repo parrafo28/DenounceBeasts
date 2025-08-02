@@ -153,47 +153,8 @@ ComplaintType, Status, Role (Entidades de catálogo)
 
 ## 🔧 Configuración y Setup
 
-### Prerrequisitos:
-- .NET 8.0 SDK
-- SQL Server (LocalDB o instancia completa)
-- Node.js 18+ (para clientes SPA)
-- Visual Studio 2022 o VS Code
-
-### Variables de Entorno Importantes:
-```json
-// API appsettings.json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=DenounceBeasts;..."
-  },
-  "JwtSettings": {
-    "SecretKey": "DenounceBeasts2025SuperSecretKeyForJWT!@#$%^&*()_+",
-    "Issuer": "DenounceBeasts",
-    "Audience": "DenounceBeasts-Users"
-  },
-  "ApiSettings": {
-    "BaseUrl": "https://localhost:7156/"
-  }
-}
-```
-
-### Comandos de Desarrollo:
-```bash
-# API
-cd DenounceBeasts.API
-dotnet run
-
-# Migraciones (si es necesario)
-dotnet ef database update
-
-# Clientes .NET
-cd client-mvc && dotnet run
-cd client-razor && dotnet run  
-cd client-blazor && dotnet run
-
-# Clientes Node.js
-cd client-vue && npm run dev
-```
+ 
+ 
 
 ## 📝 Flujo de Trabajo de Desarrollo
 
@@ -227,24 +188,14 @@ cd client-vue && npm run dev
 
 ### Problemas Comunes:
 
-#### CORS Issues:
-```csharp
-// Program.cs - API
-app.UseCors(policy => policy
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
-```
+ 
 
 #### JWT Token Issues:
 - Verificar que el token esté en formato Bearer
 - Confirmar que el SecretKey sea igual en todos los ambientes
 - Revisar que el token no haya expirado
 
-#### Database Issues:
-- Ejecutar `dotnet ef database update`
-- Verificar connection string
-- Revisar que SQL Server esté corriendo
+ 
 
 #### Client-specific Issues:
 - **Vue/TS**: Verificar que las dependencias estén instaladas
@@ -297,14 +248,9 @@ app.UseCors(policy => policy
 - [ ] **Real-time**: SignalR para notifications
 - [ ] **Advanced UI**: Charts, dashboards, maps
 
-### DevOps:
-- [ ] **Docker**: Containerización completa
-- [ ] **CI/CD**: GitHub Actions o Azure DevOps  
-- [ ] **Testing**: Unit tests y integration tests
-- [ ] **Monitoring**: Application Insights
-- [ ] **Security**: Penetration testing
+ 
 
-## 💡 Notas para IAs Futuras
+## 💡 Notas para IAs y/o Agentes
 
 ### Context Loading:
 Si eres una IA trabajando en este proyecto:
@@ -334,8 +280,7 @@ Si eres una IA trabajando en este proyecto:
 - **Curso**: ITLA 2025 C2 Saturdays
 - **Arquitectura**: Clean Architecture + Multi-client Frontend
 - **Estado**: JWT Authentication completamente implementado
-- **Última Actualización**: Enero 2025
-- **Generated with**: 🤖 Claude Code
+ 
 
 ---
 

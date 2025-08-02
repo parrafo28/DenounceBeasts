@@ -100,6 +100,77 @@ function isAuthenticated() {
     return authToken && currentUser;
 }
 
+// Authorization functions
+function hasRole(role) {
+    return currentUser && currentUser.roles && currentUser.roles.includes(role);
+}
+
+function isAdmin() {
+    return hasRole('Admin');
+}
+
+function isStaff() {
+    return hasRole('Staff');
+}
+
+function isUser() {
+    return hasRole('User');
+}
+
+function isAdminOrStaff() {
+    return isAdmin() || isStaff();
+}
+
+function canManageMunicipalities() {
+    return isAdmin(); // Solo admins pueden gestionar municipios
+}
+
+function canManageSectors() {
+    return isAdmin(); // Solo admins pueden gestionar sectores
+}
+
+function canManageComplaintTypes() {
+    return isAdmin(); // Solo admins pueden gestionar tipos de denuncia
+}
+
+function canManageStatus() {
+    return isAdmin(); // Solo admins pueden gestionar estados
+}
+
+function canViewReports() {
+    return isAdminOrStaff(); // Admins y staff pueden ver reportes
+}
+
+function canModerateComplaints() {
+    return isAdminOrStaff(); // Admins y staff pueden moderar denuncias
+}
+
+// Function to check permissions before executing actions
+function checkPermission(permissionFunction, actionName, callback) {
+    if (permissionFunction()) {
+        callback();
+    } else {
+        showError(`No tienes permisos para ${actionName}. Solo usuarios con rol de administrador pueden realizar esta acción.`);
+    }
+}
+
+// Security wrapper functions for actions
+function secureEditMunicipality(id) {
+    checkPermission(canManageMunicipalities, 'editar municipios', () => editMunicipality(id));
+}
+
+function secureDeleteMunicipality(id) {
+    checkPermission(canManageMunicipalities, 'eliminar municipios', () => confirmDeleteMunicipality(id));
+}
+
+function secureEditSector(id) {
+    checkPermission(canManageSectors, 'editar sectores', () => editSector(id));
+}
+
+function secureDeleteSector(id) {
+    checkPermission(canManageSectors, 'eliminar sectores', () => confirmDeleteSector(id));
+}
+
 async function login(email, password) {
     try {
         showLoading();
@@ -145,17 +216,150 @@ function updateUI() {
         if (loginSection) loginSection.style.display = 'none';
         if (mainContent) mainContent.style.display = 'block';
         if (userInfo) {
+            const rolesBadges = currentUser.roles.map(role => 
+                `<span class="badge bg-primary me-1">${role}</span>`
+            ).join('');
+            
             userInfo.innerHTML = `
                 <div class="user-welcome">
                     <span>Bienvenido, ${currentUser.firstName} ${currentUser.lastName}</span>
-                    <button onclick="logout()" class="btn btn-secondary btn-sm">Cerrar Sesión</button>
+                    <div class="user-roles mt-1">${rolesBadges}</div>
+                    <button onclick="logout()" class="btn btn-secondary btn-sm mt-2">Cerrar Sesión</button>
                 </div>
             `;
         }
+        
+        // Update UI based on user permissions
+        updateUIPermissions();
     } else {
         if (loginSection) loginSection.style.display = 'block';
         if (mainContent) mainContent.style.display = 'none';
         if (userInfo) userInfo.innerHTML = '';
+    }
+}
+
+function updateUIPermissions() {
+    // Control tab visibility based on permissions
+    const complaintsTab = document.getElementById('complaints-tab');
+    const complaintTypesTab = document.getElementById('complaint-types-tab');
+    const municipalitiesTab = document.getElementById('municipalities-tab');
+    const sectorsTab = document.getElementById('sectors-tab');
+    const statusTab = document.getElementById('status-tab');
+    
+    // Todos pueden ver denuncias
+    showElement(complaintsTab?.parentElement);
+    
+    // Solo admins pueden gestionar tipos de denuncia, municipios, sectores y estados
+    if (canManageComplaintTypes()) {
+        showElement(complaintTypesTab?.parentElement);
+    } else {
+        hideElement(complaintTypesTab?.parentElement);
+    }
+    
+    if (canManageMunicipalities()) {
+        showElement(municipalitiesTab?.parentElement);
+    } else {
+        hideElement(municipalitiesTab?.parentElement);
+    }
+    
+    if (canManageSectors()) {
+        showElement(sectorsTab?.parentElement);
+    } else {
+        hideElement(sectorsTab?.parentElement);
+    }
+    
+    if (canManageStatus()) {
+        showElement(statusTab?.parentElement);
+    } else {
+        hideElement(statusTab?.parentElement);
+    }
+    
+    // Control botones de acción dentro de cada sección
+    updateActionButtonsPermissions();
+}
+
+function updateActionButtonsPermissions() {
+    // Botones para crear/agregar elementos - usar los IDs correctos del HTML
+    const addComplaintBtn = document.getElementById('addComplaintBtn');
+    const addComplaintTypeBtn = document.getElementById('addComplaintTypeBtn');
+    const addMunicipalityBtn = document.getElementById('addMunicipalityBtn');
+    const addSectorBtn = document.getElementById('addSectorBtn');
+    const addStatusBtn = document.getElementById('addStatusBtn');
+    
+    // Todos pueden crear denuncias
+    if (addComplaintBtn) showElement(addComplaintBtn);
+    
+    // Solo admins pueden crear tipos de denuncia
+    if (addComplaintTypeBtn) {
+        if (canManageComplaintTypes()) {
+            showElement(addComplaintTypeBtn);
+        } else {
+            hideElement(addComplaintTypeBtn);
+        }
+    }
+    
+    // Solo admins pueden crear municipios
+    if (addMunicipalityBtn) {
+        if (canManageMunicipalities()) {
+            showElement(addMunicipalityBtn);
+        } else {
+            hideElement(addMunicipalityBtn);
+        }
+    }
+    
+    // Solo admins pueden crear sectores
+    if (addSectorBtn) {
+        if (canManageSectors()) {
+            showElement(addSectorBtn);
+        } else {
+            hideElement(addSectorBtn);
+        }
+    }
+    
+    // Solo admins pueden crear estados
+    if (addStatusBtn) {
+        if (canManageStatus()) {
+            showElement(addStatusBtn);
+        } else {
+            hideElement(addStatusBtn);
+        }
+    }
+    
+    // Ocultar botones de editar/eliminar según permisos
+    updateEditDeleteButtons();
+}
+
+function updateEditDeleteButtons() {
+    // Ocultar botones de editar/eliminar municipios para usuarios sin permisos
+    document.querySelectorAll('[onclick*="editMunicipality"], [onclick*="deleteMunicipality"]').forEach(btn => {
+        if (canManageMunicipalities()) {
+            showElement(btn);
+        } else {
+            hideElement(btn);
+        }
+    });
+    
+    // Ocultar botones de editar/eliminar sectores para usuarios sin permisos
+    document.querySelectorAll('[onclick*="editSector"], [onclick*="deleteSector"]').forEach(btn => {
+        if (canManageSectors()) {
+            showElement(btn);
+        } else {
+            hideElement(btn);
+        }
+    });
+}
+
+function showElement(element) {
+    if (element) {
+        element.style.display = '';
+        element.style.visibility = 'visible';
+    }
+}
+
+function hideElement(element) {
+    if (element) {
+        element.style.display = 'none';
+        element.style.visibility = 'hidden';
     }
 }
 
@@ -663,6 +867,9 @@ function renderMunicipalities() {
     `).join('');
     
     renderPagination('municipalityPagination', filtered.length, currentPage.municipalities, 'municipalities');
+    
+    // Update button permissions after rendering
+    updateEditDeleteButtons();
 }
 
 function renderSectors() {
@@ -709,6 +916,9 @@ function renderSectors() {
     }).join('');
     
     renderPagination('sectorPagination', filtered.length, currentPage.sectors, 'sectors');
+    
+    // Update button permissions after rendering
+    updateEditDeleteButtons();
 }
 
 function renderComplaintTypes() {

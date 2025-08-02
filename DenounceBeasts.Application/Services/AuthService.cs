@@ -28,7 +28,7 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
     {
         // Buscar usuario por email
-        var users = await _unitOfWork.UserRepository.GetAllAsync();
+        var users = await _unitOfWork.Users.GetAllAsync();
         var user = users.FirstOrDefault(u => u.Email.ToLower() == loginDto.Email.ToLower() && u.IsActive);
 
         if (user == null)
@@ -43,8 +43,8 @@ public class AuthService : IAuthService
         }
 
         // Obtener roles del usuario
-        var userRoles = await _unitOfWork.UserRoleRepository.GetAllAsync();
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync();
+        var userRoles = await _unitOfWork.UserRoles.GetAllAsync();
+        var roles = await _unitOfWork.Roles.GetAllAsync();
         
         var userRoleIds = userRoles.Where(ur => ur.UserId == user.Id).Select(ur => ur.RoleId);
         var userRoleNames = roles.Where(r => userRoleIds.Contains(r.Id)).Select(r => r.Name).ToList();
@@ -94,11 +94,11 @@ public class AuthService : IAuthService
             UpdatedAt = DateTime.UtcNow
         };
 
-        await _unitOfWork.UserRepository.AddAsync(user);
+        await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.CompleteAsync();
 
         // Asignar rol de Usuario por defecto
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync();
+        var roles = await _unitOfWork.Roles.GetAllAsync();
         var userRole = roles.FirstOrDefault(r => r.Name == "Usuario");
         
         if (userRole != null)
@@ -111,7 +111,7 @@ public class AuthService : IAuthService
                 UpdatedAt = DateTime.UtcNow
             };
             
-            await _unitOfWork.UserRoleRepository.AddAsync(userRoleEntity);
+            await _unitOfWork.UserRoles.AddAsync(userRoleEntity);
             await _unitOfWork.CompleteAsync();
         }
 
@@ -141,7 +141,7 @@ public class AuthService : IAuthService
 
     public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
     {
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null || !user.IsActive)
         {
             return false;
@@ -157,7 +157,7 @@ public class AuthService : IAuthService
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
         user.UpdatedAt = DateTime.UtcNow;
 
-        await _unitOfWork.UserRepository.UpdateAsync(user);
+        await _unitOfWork.Users.UpdateAsync(user);
         await _unitOfWork.CompleteAsync();
 
         return true;
@@ -165,15 +165,15 @@ public class AuthService : IAuthService
 
     public async Task<UserAuthDto?> GetUserByIdAsync(int userId)
     {
-        var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null || !user.IsActive)
         {
             return null;
         }
 
         // Obtener roles del usuario
-        var userRoles = await _unitOfWork.UserRoleRepository.GetAllAsync();
-        var roles = await _unitOfWork.RoleRepository.GetAllAsync();
+        var userRoles = await _unitOfWork.UserRoles.GetAllAsync();
+        var roles = await _unitOfWork.Roles.GetAllAsync();
         
         var userRoleIds = userRoles.Where(ur => ur.UserId == user.Id).Select(ur => ur.RoleId);
         var userRoleNames = roles.Where(r => userRoleIds.Contains(r.Id)).Select(r => r.Name).ToList();
@@ -193,7 +193,7 @@ public class AuthService : IAuthService
 
     public async Task<bool> EmailExistsAsync(string email)
     {
-        var users = await _unitOfWork.UserRepository.GetAllAsync();
+        var users = await _unitOfWork.Users.GetAllAsync();
         return users.Any(u => u.Email.ToLower() == email.ToLower());
     }
 
@@ -235,7 +235,7 @@ public class AuthService : IAuthService
 
     public async Task<bool> ValidateUserAsync(string email, string password)
     {
-        var users = await _unitOfWork.UserRepository.GetAllAsync();
+        var users = await _unitOfWork.Users.GetAllAsync();
         var user = users.FirstOrDefault(u => u.Email.ToLower() == email.ToLower() && u.IsActive);
 
         if (user == null)

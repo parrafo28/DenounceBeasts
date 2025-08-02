@@ -4,6 +4,7 @@ using DenounceBeasts.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DenounceBeasts.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250802121207_MoreITemsToUSerRegister")]
+    partial class MoreITemsToUSerRegister
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,42 +174,6 @@ namespace DenounceBeasts.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Complaints");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "Av. 27 de Febrero, frente a Blue Mall",
-                            ComplaintTypeId = 1,
-                            CreatedAt = new DateTime(2024, 12, 27, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Hay un bache muy grande en la Avenida 27 de Febrero que está causando daños a los vehículos",
-                            Detail = "El bache se encuentra exactamente frente al Centro Comercial Blue Mall. Mide aproximadamente 2 metros de largo por 1 metro de ancho y tiene una profundidad considerable. Varios conductores han reportado daños en sus neumáticos.",
-                            Image = "/images/complaints/pothole-sample.jpg",
-                            IsActive = true,
-                            Latitude = 18.476500000000001,
-                            Longitude = -69.939899999999994,
-                            SectorId = 1,
-                            StatusId = 1,
-                            Title = "Bache en la Avenida 27 de Febrero",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "Calle José Martí #45-67, Los Alcarrizos",
-                            ComplaintTypeId = 2,
-                            CreatedAt = new DateTime(2024, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "La basura no se ha recogido en nuestra calle durante más de una semana",
-                            Detail = "Los contenedores están desbordados y la basura se está acumulando en las aceras. Esto está creando problemas de higiene y malos olores en todo el vecindario. Hemos contactado al ayuntamiento pero no hemos recibido respuesta.",
-                            Image = "/images/complaints/waste-sample.jpg",
-                            IsActive = true,
-                            Latitude = 18.505099999999999,
-                            Longitude = -70.005099999999999,
-                            SectorId = 4,
-                            StatusId = 2,
-                            Title = "Problema con la recolección de basura",
-                            UserId = 3
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.ComplaintHistory", b =>
@@ -248,38 +215,6 @@ namespace DenounceBeasts.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ComplaintHistories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Comments = "Denuncia creada por el ciudadano",
-                            ComplaintId = 1,
-                            CreatedAt = new DateTime(2024, 12, 27, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            StatusId = 1,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Comments = "Denuncia creada por el ciudadano",
-                            ComplaintId = 2,
-                            CreatedAt = new DateTime(2024, 12, 29, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            StatusId = 1,
-                            UserId = 3
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Comments = "Denuncia asignada al departamento de servicios públicos para revisión",
-                            ComplaintId = 2,
-                            CreatedAt = new DateTime(2024, 12, 30, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            StatusId = 2,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.ComplaintType", b =>
@@ -317,62 +252,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ComplaintTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Issues related to roads, potholes, etc.",
-                            Icon = "fa-road",
-                            IsActive = true,
-                            Name = "Road Issue"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Issues related to garbage collection, etc.",
-                            Icon = "fa-trash",
-                            IsActive = true,
-                            Name = "Waste Management"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Issues related to water supply",
-                            Icon = "fa-tint",
-                            IsActive = true,
-                            Name = "Water Supply"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Issues related to electricity supply",
-                            Icon = "fa-bolt",
-                            IsActive = true,
-                            Name = "Electricity"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Issues related to public safety",
-                            Icon = "fa-shield-alt",
-                            IsActive = true,
-                            Name = "Public Safety"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Other issues not covered by other types",
-                            Icon = "fa-question-circle",
-                            IsActive = true,
-                            Name = "Other"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.Municipality", b =>
@@ -408,16 +287,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Municipalities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "SD",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            Name = "Santo Domingo"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.Notification", b =>
@@ -504,35 +373,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Administrator role with full access",
-                            IsActive = true,
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Staff role with limited administrative access",
-                            IsActive = true,
-                            Name = "Staff",
-                            NormalizedName = "STAFF"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Regular user role",
-                            IsActive = true,
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.Sector", b =>
@@ -570,44 +410,6 @@ namespace DenounceBeasts.Persistence.Migrations
                     b.HasIndex("MunicipalityId");
 
                     b.ToTable("Sectors");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Code = "DN",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            MunicipalityId = 1,
-                            Name = "Distrito Nacional"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Code = "SDE",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            MunicipalityId = 1,
-                            Name = "Santo Domingo Este"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "SDN",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            MunicipalityId = 1,
-                            Name = "Santo Domingo Norte"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Code = "SDO",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            MunicipalityId = 1,
-                            Name = "Santo Domingo Oeste"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.Status", b =>
@@ -645,44 +447,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Status");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Color = "#FFC107",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The complaint is pending review",
-                            IsActive = true,
-                            Name = "Pending"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Color = "#2196F3",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The complaint is being addressed",
-                            IsActive = true,
-                            Name = "In Progress"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Color = "#4CAF50",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The complaint has been resolved",
-                            IsActive = true,
-                            Name = "Resolved"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Color = "#F44336",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "The complaint has been rejected",
-                            IsActive = true,
-                            Name = "Rejected"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.User", b =>
@@ -748,50 +512,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DeviceId = "SYSTEM",
-                            Email = "admin@denuncia.do",
-                            FirstName = "Administrador",
-                            IsActive = true,
-                            IsAnonymous = false,
-                            LastName = "Sistema",
-                            NickName = "admin",
-                            PasswordHash = "$2a$11$3BudctoP/lZj6bnw6mQUreruBG6FD7zVfVtFPPsDDDyeJSqyoUZOG",
-                            Picture = "/img/admin-avatar.png"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DeviceId = "DEVICE-001",
-                            Email = "juan.perez@example.com",
-                            FirstName = "Juan",
-                            IsActive = true,
-                            IsAnonymous = false,
-                            LastName = "Pérez",
-                            NickName = "juanperez",
-                            PasswordHash = "$2a$11$XWF8VXckIcKXXxf3J3Is1O0ytW1it7FZk5PDojD4KDuP3zz/DK7cu",
-                            Picture = "/images/complaints/pothole-sample.jpg"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DeviceId = "DEVICE-002",
-                            Email = "maria.gonzalez@example.com",
-                            FirstName = "María",
-                            IsActive = true,
-                            IsAnonymous = false,
-                            LastName = "González",
-                            NickName = "mariagonzalez",
-                            PasswordHash = "$2a$11$XWF8VXckIcKXXxf3J3Is1O0ytW1it7FZk5PDojD4KDuP3zz/DK7cu",
-                            Picture = "/images/complaints/pothole-sample.jpg"
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.UserProfile", b =>
@@ -839,41 +559,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("UserProfiles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "Oficina Central, Santo Domingo",
-                            Bio = "Administrador del sistema Denuncia.Do",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Identification = "ADMIN-001",
-                            IsActive = true,
-                            Phone = "+1 809-555-0001",
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "Calle Principal #123, Santo Domingo Este",
-                            Bio = "Ciudadano activo preocupado por su comunidad",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Identification = "001-0123456-7",
-                            IsActive = true,
-                            Phone = "+1 809-555-0002",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Address = "Av. Winston Churchill #456, Distrito Nacional",
-                            Bio = "Vecina comprometida con el mejoramiento del barrio",
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Identification = "001-0234567-8",
-                            IsActive = true,
-                            Phone = "+1 809-555-0003",
-                            UserId = 3
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.UserRole", b =>
@@ -907,32 +592,6 @@ namespace DenounceBeasts.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("UserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            RoleId = 1,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            RoleId = 3,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsActive = true,
-                            RoleId = 3,
-                            UserId = 3
-                        });
                 });
 
             modelBuilder.Entity("DenounceBeasts.Domain.Entities.Vote", b =>

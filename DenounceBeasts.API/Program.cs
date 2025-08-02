@@ -120,8 +120,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Administrador"));
-    options.AddPolicy("ModeratorOrAdmin", policy => policy.RequireRole("Moderador", "Administrador"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("ModeratorOrAdmin", policy => policy.RequireRole("Staff", "Admin"));
 });
 
 builder.Services.AddControllers()

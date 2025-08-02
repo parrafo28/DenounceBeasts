@@ -173,7 +173,7 @@ namespace DenounceBeasts.Persistence
                 .OnDelete(DeleteBehavior.Cascade);
             */
             // base.OnModelCreating(modelBuilder);
-          //SeederDb.SeedData(modelBuilder);
+         SeederDb.SeedData(modelBuilder);
         }
     }
 }
