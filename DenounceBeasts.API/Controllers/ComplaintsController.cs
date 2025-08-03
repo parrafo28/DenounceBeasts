@@ -51,6 +51,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpPost]
+      //  [Authorize]
         public async Task<ActionResult<ComplaintDto>> Create([FromBody] CreateComplaintDto createDto)
         {
             try
@@ -68,6 +69,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpPut("{id}")]
+      //  [Authorize]
         public async Task<ActionResult<ComplaintDto>> Update(int id, [FromBody] UpdateComplaintDto updateDto)
         {
             try
@@ -110,6 +112,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet("user/{userId}")]
+      //  [Authorize]
         public async Task<ActionResult<IEnumerable<ComplaintDto>>> GetByUserId(int userId)
         {
             try

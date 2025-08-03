@@ -9,6 +9,6 @@ public interface IAuthService
     Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
     Task<UserAuthDto?> GetUserByIdAsync(int userId);
     Task<bool> EmailExistsAsync(string email);
-    string GenerateJwtToken(UserAuthDto user);
+    string GenerateJwtToken(UserAuthDto user, DateTime expires);
     Task<bool> ValidateUserAsync(string email, string password);
 }

@@ -36,7 +36,7 @@ namespace DenounceBeasts.Application.Services
             complaint.IsActive = true;
 
             await _unitOfWork.Complaints.AddAsync(complaint);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             return _mapper.Map<ComplaintDto>(complaint);
         }
@@ -50,8 +50,8 @@ namespace DenounceBeasts.Application.Services
             _mapper.Map(updateDto, complaint);
             complaint.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Complaints.Update(complaint);
-            await _unitOfWork.SaveChangesAsync();
+           await  _unitOfWork.Complaints.UpdateAsync(complaint);
+            await _unitOfWork.CompleteAsync();
 
             return _mapper.Map<ComplaintDto>(complaint);
         }
@@ -65,8 +65,8 @@ namespace DenounceBeasts.Application.Services
             complaint.IsActive = false;
             complaint.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Complaints.Update(complaint);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.Complaints.UpdateAsync(complaint);
+            await _unitOfWork.CompleteAsync();
 
             return true;
         }
@@ -122,9 +122,9 @@ namespace DenounceBeasts.Application.Services
                 IsActive = true
             };
 
-            _unitOfWork.Complaints.Update(complaint);
+            await _unitOfWork.Complaints.UpdateAsync(complaint);
             await _unitOfWork.ComplaintHistories.AddAsync(history);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
 
             return true;
         }

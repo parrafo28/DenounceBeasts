@@ -2,6 +2,7 @@
 @model client_razor.Pages.Sectors.IndexModel
 @{
     ViewData["Title"] = "Sectores";
+    var authService = Context.RequestServices.GetService<client_razor.Services.IAuthService>();
 }
 
 <div class="container-fluid">
@@ -11,9 +12,12 @@
             <h1 class="h2 text-primary">@ViewData["Title"]</h1>
             <p class="text-muted">Gestión de sectores del sistema</p>
         </div>
-        <a asp-page="Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Agregar Sector
-        </a>
+        @if (authService?.CanManageSectors() == true)
+        {
+            <a asp-page="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar Sector
+            </a>
+        }
     </div>
 
     <!-- Filtros y búsqueda -->
@@ -152,14 +156,17 @@
                                                class="btn btn-sm btn-outline-info" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-page="Edit" asp-route-id="@sector.Id" 
-                                               class="btn btn-sm btn-outline-primary" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                    title="Eliminar" onclick="confirmDelete(@sector.Id, '@sector.Name')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if (authService?.CanManageSectors() == true)
+                                            {
+                                                <a asp-page="Edit" asp-route-id="@sector.Id" 
+                                                   class="btn btn-sm btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        title="Eliminar" onclick="confirmDelete(@sector.Id, '@sector.Name')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>

@@ -36,7 +36,7 @@ namespace DenounceBeasts.Application.Services
             complaintType.IsActive = true;
             
             await _unitOfWork.ComplaintTypes.AddAsync(complaintType);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<ComplaintTypeDto>(complaintType);
         }
@@ -50,8 +50,8 @@ namespace DenounceBeasts.Application.Services
             _mapper.Map(updateDto, complaintType);
             complaintType.UpdatedAt = DateTime.UtcNow;
             
-            _unitOfWork.ComplaintTypes.Update(complaintType);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ComplaintTypes.UpdateAsync(complaintType);
+            await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<ComplaintTypeDto>(complaintType);
         }
@@ -65,8 +65,8 @@ namespace DenounceBeasts.Application.Services
             complaintType.IsActive = false;
             complaintType.UpdatedAt = DateTime.UtcNow;
             
-            _unitOfWork.ComplaintTypes.Update(complaintType);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ComplaintTypes.UpdateAsync(complaintType);
+            await _unitOfWork.CompleteAsync();
             
             return true;
         }

@@ -32,6 +32,19 @@
                         @AuthService.CurrentUser.FirstName
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="dropdown-header">
+                            <strong>@AuthService.CurrentUser.FirstName @AuthService.CurrentUser.LastName</strong>
+                            <div class="mt-1">
+                                @if (AuthService.CurrentUser.Roles != null)
+                                {
+                                    @foreach (var role in AuthService.CurrentUser.Roles)
+                                    {
+                                        <span class="badge bg-primary me-1">@role</span>
+                                    }
+                                }
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/auth/profile">
                             <i class="bi bi-person me-2"></i>Mi Perfil
                         </a></li>

@@ -23,11 +23,19 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const isAdmin = computed(() => {
-    return userRoles.value.includes('Administrador')
+    return userRoles.value.includes('Admin')
   })
 
-  const isModerator = computed(() => {
-    return userRoles.value.includes('Moderador') || isAdmin.value
+  const isStaff = computed(() => {
+    return userRoles.value.includes('Staff')
+  })
+
+  const isUser = computed(() => {
+    return userRoles.value.includes('User')
+  })
+
+  const isAdminOrStaff = computed(() => {
+    return isAdmin.value || isStaff.value
   })
 
   const fullName = computed(() => {
@@ -192,10 +200,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function requireModerator() {
+  function requireStaff() {
     requireAuth()
-    if (!isModerator.value) {
-      throw new Error('No tienes permisos de moderador para acceder a esta página')
+    if (!isAdminOrStaff.value) {
+      throw new Error('No tienes permisos de staff para acceder a esta página')
     }
   }
 
@@ -208,6 +216,31 @@ export const useAuthStore = defineStore('auth', () => {
     return roles.some(role => userRoles.value.includes(role))
   }
 
+  // Permission-specific functions
+  const canManageMunicipalities = computed(() => {
+    return isAdmin.value // Solo admins pueden gestionar municipios
+  })
+
+  const canManageSectors = computed(() => {
+    return isAdmin.value // Solo admins pueden gestionar sectores
+  })
+
+  const canManageComplaintTypes = computed(() => {
+    return isAdmin.value // Solo admins pueden gestionar tipos de denuncia
+  })
+
+  const canManageStatus = computed(() => {
+    return isAdmin.value // Solo admins pueden gestionar estados
+  })
+
+  const canViewReports = computed(() => {
+    return isAdminOrStaff.value // Admins y staff pueden ver reportes
+  })
+
+  const canModerateComplaints = computed(() => {
+    return isAdminOrStaff.value // Admins y staff pueden moderar denuncias
+  })
+
   return {
     // State
     user,
@@ -219,7 +252,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     userRoles,
     isAdmin,
-    isModerator,
+    isStaff,
+    isUser,
+    isAdminOrStaff,
     fullName,
     
     // Actions
@@ -236,10 +271,18 @@ export const useAuthStore = defineStore('auth', () => {
     // Guards
     requireAuth,
     requireAdmin,
-    requireModerator,
+    requireStaff,
     
     // Utilities
     hasRole,
-    hasAnyRole
+    hasAnyRole,
+    
+    // Permissions
+    canManageMunicipalities,
+    canManageSectors,
+    canManageComplaintTypes,
+    canManageStatus,
+    canViewReports,
+    canModerateComplaints
   }
 })

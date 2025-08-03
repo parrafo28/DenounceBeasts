@@ -117,7 +117,7 @@ class AuthNavbarComponent {
                             <i class="bi bi-key me-2"></i>Cambiar Contraseña
                         </button>
                     </li>
-                    ${user.roles.includes('Administrador') ? `
+                    ${user.roles.includes('Admin') ? `
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <button class="dropdown-item" type="button" id="adminPanelBtn">

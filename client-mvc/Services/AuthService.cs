@@ -335,4 +335,61 @@ public class AuthService : IAuthService
         
         _logger.LogInformation("Authentication data cleared");
     }
+
+    // Authorization methods
+    public bool HasRole(string role)
+    {
+        var user = GetCurrentUser();
+        return user?.Roles?.Contains(role) ?? false;
+    }
+
+    public bool IsAdmin()
+    {
+        return HasRole("Admin");
+    }
+
+    public bool IsStaff()
+    {
+        return HasRole("Staff");
+    }
+
+    public bool IsUser()
+    {
+        return HasRole("User");
+    }
+
+    public bool IsAdminOrStaff()
+    {
+        return IsAdmin() || IsStaff();
+    }
+
+    public bool CanManageMunicipalities()
+    {
+        return IsAdmin(); // Solo admins pueden gestionar municipios
+    }
+
+    public bool CanManageSectors()
+    {
+        return IsAdmin(); // Solo admins pueden gestionar sectores
+    }
+
+    public bool CanManageComplaintTypes()
+    {
+        return IsAdmin(); // Solo admins pueden gestionar tipos de denuncia
+    }
+
+    public bool CanManageStatus()
+    {
+        return IsAdmin(); // Solo admins pueden gestionar estados
+    }
+
+    public bool CanViewReports()
+    {
+        return IsAdminOrStaff(); // Admins y staff pueden ver reportes
+    }
+
+    public bool CanModerateComplaints()
+    {
+        return IsAdminOrStaff(); // Admins y staff pueden moderar denuncias
+    }
 }

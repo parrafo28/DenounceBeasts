@@ -36,7 +36,7 @@ namespace DenounceBeasts.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+       // [AllowAnonymous]
         public async Task<IActionResult> GetSectors()
         {
             // var sectors = await _sectorRepository.GetAllSectorsAsync();

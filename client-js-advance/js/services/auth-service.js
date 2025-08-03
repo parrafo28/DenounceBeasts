@@ -238,14 +238,70 @@ class AuthService extends BaseService {
      * Check if user is admin
      */
     isAdmin() {
-        return this.hasRole('Administrador');
+        return this.hasRole('Admin');
     }
 
     /**
-     * Check if user is moderator or admin
+     * Check if user is staff
      */
-    isModerator() {
-        return this.hasAnyRole(['Moderador', 'Administrador']);
+    isStaff() {
+        return this.hasRole('Staff');
+    }
+
+    /**
+     * Check if user is regular user
+     */
+    isUser() {
+        return this.hasRole('User');
+    }
+
+    /**
+     * Check if user is admin or staff
+     */
+    isAdminOrStaff() {
+        return this.hasAnyRole(['Admin', 'Staff']);
+    }
+
+    /**
+     * Check if user can manage municipalities
+     */
+    canManageMunicipalities() {
+        return this.isAdmin(); // Solo admins pueden gestionar municipios
+    }
+
+    /**
+     * Check if user can manage sectors
+     */
+    canManageSectors() {
+        return this.isAdmin(); // Solo admins pueden gestionar sectores
+    }
+
+    /**
+     * Check if user can manage complaint types
+     */
+    canManageComplaintTypes() {
+        return this.isAdmin(); // Solo admins pueden gestionar tipos de denuncia
+    }
+
+    /**
+     * Check if user can manage status
+     */
+    canManageStatus() {
+        return this.isAdmin(); // Solo admins pueden gestionar estados
+    }
+
+    /**
+     * Check if user can view reports
+     */
+    canViewReports() {
+        return this.isAdminOrStaff(); // Admins y staff pueden ver reportes
+    }
+
+    /**
+     * Check if user can moderate complaints
+     */
+    canModerateComplaints() {
+        return this.isAdminOrStaff(); // Admins y staff pueden moderar denuncias
     }
 
     /**

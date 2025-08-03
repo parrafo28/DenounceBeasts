@@ -6,7 +6,7 @@ using DenounceBeasts.Application.DTOs;
 namespace DenounceBeasts.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/status")]
     [AllowAnonymous]
     public class StatusController : ControllerBase
     {

@@ -85,12 +85,7 @@ namespace DenounceBeasts.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
-
-        public async Task<int> SaveChangesAsync()
-        {
-            return await _context.SaveChangesAsync();
-        }
-
+         
         public async Task BeginTransactionAsync()
         {
             await _context.Database.BeginTransactionAsync();

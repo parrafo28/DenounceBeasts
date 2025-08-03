@@ -67,9 +67,9 @@ function getAuthHeaders() {
         'Content-Type': 'application/json'
     };
     
-    if (authToken) {
+     if (authToken) {
         headers['Authorization'] = `Bearer ${authToken}`;
-    }
+     }
     
     return headers;
 }
@@ -174,20 +174,25 @@ function secureDeleteSector(id) {
 async function login(email, password) {
     try {
         showLoading();
+        let obj = { email, password };
+        //let obj2 = { email:email, password:password };
+
         const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
+            }, 
+            body: JSON.stringify(obj)
         });
 
+        const authData = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al iniciar sesión');
+            //const errorData = await response.json();
+          //  throw new Error(errorData.message || 'Error al iniciar sesión');
+            throw new Error(authData.message || 'Error al iniciar sesión');
         }
 
-        const authData = await response.json();
         saveAuthData(authData.token, authData.user);
         
         hideLoading();

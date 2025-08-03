@@ -27,7 +27,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 //builder.Services.AddTransient<SectorRepository>();
 //builder.Services.AddTransient<GenericRepository<Status>>();
 
-//string[] authorizedOrigins = ["https:localhost:8705", "https:localhost:8709"];
+//string[] authorizedOrigins = ["https://localhost:8705", "https://localhost:8709",   "https://denunciabestia.com","https://denunciabestia.com/Complaints"];
 //builder.Services.AddCors(options =>
 //{
 //    options.AddPolicy("AllowSpecificOrigins",
@@ -44,22 +44,22 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
-// Repository registrations
-builder.Services.AddScoped<UnitOfWork>();
-builder.Services.AddScoped<MunicipalityRepository>();
-builder.Services.AddScoped<SectorRepository>();
-builder.Services.AddScoped<GenericRepository<Status>>();
-builder.Services.AddScoped<GenericRepository<Complaint>>();
-builder.Services.AddScoped<GenericRepository<User>>();
-builder.Services.AddScoped<GenericRepository<ComplaintType>>();
-builder.Services.AddScoped<GenericRepository<Comment>>();
-builder.Services.AddScoped<GenericRepository<Vote>>();
-builder.Services.AddScoped<GenericRepository<Attachment>>();
-builder.Services.AddScoped<GenericRepository<Role>>();
-builder.Services.AddScoped<GenericRepository<UserRole>>();
-builder.Services.AddScoped<GenericRepository<Notification>>();
-builder.Services.AddScoped<GenericRepository<ComplaintHistory>>();
-builder.Services.AddScoped<GenericRepository<UserProfile>>();
+//// Repository registrations
+//builder.Services.AddScoped<UnitOfWork>();
+//builder.Services.AddScoped<MunicipalityRepository>();
+//builder.Services.AddScoped<SectorRepository>();
+//builder.Services.AddScoped<GenericRepository<Status>>();
+//builder.Services.AddScoped<GenericRepository<Complaint>>();
+//builder.Services.AddScoped<GenericRepository<User>>();
+//builder.Services.AddScoped<GenericRepository<ComplaintType>>();
+//builder.Services.AddScoped<GenericRepository<Comment>>();
+//builder.Services.AddScoped<GenericRepository<Vote>>();
+//builder.Services.AddScoped<GenericRepository<Attachment>>();
+//builder.Services.AddScoped<GenericRepository<Role>>();
+//builder.Services.AddScoped<GenericRepository<UserRole>>();
+//builder.Services.AddScoped<GenericRepository<Notification>>();
+//builder.Services.AddScoped<GenericRepository<ComplaintHistory>>();
+//builder.Services.AddScoped<GenericRepository<UserProfile>>();
 
 // Interface registrations
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -87,7 +87,7 @@ builder.Services.AddScoped<IComplaintTypeService, ComplaintTypeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var automapperLicence = builder.Configuration.GetSection("KeysConfigurations:AutomapperLicenceKey").Value;
-var automapperLicence2 = builder.Configuration.GetSection("AutomapperLicenceKey").Value;
+//var automapperLicence2 = builder.Configuration.GetSection("AutomapperLicenceKey").Value;
 //builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Services.AddAutoMapper(cfg => cfg.LicenseKey = automapperLicence, typeof(MappingProfile));
 
@@ -106,13 +106,13 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
-    {
+    { 
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration.GetSection("JwtSettings:Issuer").Value ?? "DenounceBeasts",
-        ValidAudience = builder.Configuration.GetSection("JwtSettings:Audience").Value ?? "DenounceBeasts-Users",
+        ValidIssuer = builder.Configuration.GetSection("JwtSettings:Issuer").Value ,
+        ValidAudience = builder.Configuration.GetSection("JwtSettings:Audience").Value ,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
         ClockSkew = TimeSpan.Zero
     };

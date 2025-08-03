@@ -77,10 +77,7 @@ namespace DenounceBeasts.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public void Update(T entity)
-        {
-            _context.Set<T>().Update(entity);
-        }
+ 
 
     }
 }

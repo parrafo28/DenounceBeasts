@@ -16,4 +16,17 @@ public interface IAuthService
     string? GetToken();
     void SetAuthenticationData(string token, AuthUser user, DateTime expiry);
     void ClearAuthenticationData();
+    
+    // Authorization methods
+    bool HasRole(string role);
+    bool IsAdmin();
+    bool IsStaff();
+    bool IsUser();
+    bool IsAdminOrStaff();
+    bool CanManageMunicipalities();
+    bool CanManageSectors();
+    bool CanManageComplaintTypes();
+    bool CanManageStatus();
+    bool CanViewReports();
+    bool CanModerateComplaints();
 }

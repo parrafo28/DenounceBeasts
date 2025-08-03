@@ -423,6 +423,7 @@ class DenonceBeastsApp {
      */
     _onUserAuthenticated() {
         this._updateAuthenticatedUI();
+        this._updatePermissionBasedUI();
         this._loadInitialData();
         this._initializeStats();
         this._initializeActivity();
@@ -440,6 +441,7 @@ class DenonceBeastsApp {
         
         // Update UI
         this._updateAuthenticatedUI();
+        this._updatePermissionBasedUI();
         this._initializeStats();
         this._initializeActivity();
         this._initializeSystemStatus();
@@ -462,6 +464,64 @@ class DenonceBeastsApp {
                 item.style.display = authenticated ? 'block' : 'none';
             }
         });
+    }
+
+    /**
+     * Update UI elements based on user permissions
+     */
+    _updatePermissionBasedUI() {
+        if (!authService.isAuthenticated()) return;
+
+        // Hide/show navigation items based on permissions
+        const catalogDropdownItems = document.querySelectorAll('.dropdown-item[data-tab]');
+        
+        catalogDropdownItems.forEach(item => {
+            const tabId = item.getAttribute('data-tab');
+            let hasPermission = true;
+
+            switch (tabId) {
+                case 'municipalities':
+                    hasPermission = authService.canManageMunicipalities();
+                    break;
+                case 'sectors':
+                    hasPermission = authService.canManageSectors();
+                    break;
+                case 'complaint-types':
+                    hasPermission = authService.canManageComplaintTypes();
+                    break;
+                case 'status':
+                    hasPermission = authService.canManageStatus();
+                    break;
+                case 'complaints':
+                    hasPermission = authService.canModerateComplaints();
+                    break;
+                default:
+                    hasPermission = true;
+            }
+
+            item.style.display = hasPermission ? 'block' : 'none';
+        });
+
+        // Hide the main complaints tab if user doesn't have permission
+        const complaintsNavItem = document.querySelector('[data-tab="complaints"]');
+        if (complaintsNavItem) {
+            const parentLi = complaintsNavItem.closest('.nav-item');
+            if (parentLi) {
+                parentLi.style.display = authService.canModerateComplaints() ? 'block' : 'none';
+            }
+        }
+
+        // Check if the catalog dropdown should be hidden completely
+        const catalogDropdown = document.querySelector('.dropdown-toggle:has(+ .dropdown-menu .dropdown-item[data-tab])');
+        if (catalogDropdown) {
+            const visibleItems = [...catalogDropdownItems].some(item => 
+                item.style.display !== 'none'
+            );
+            const parentLi = catalogDropdown.closest('.nav-item');
+            if (parentLi) {
+                parentLi.style.display = visibleItems ? 'block' : 'none';
+            }
+        }
     }
 
     /**

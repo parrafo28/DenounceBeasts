@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net;
 
 namespace DenounceBeasts.Application.Services;
 
@@ -28,8 +27,9 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
     {
         // Buscar usuario por email
-        var users = await _unitOfWork.Users.GetAllAsync();
-        var user = users.FirstOrDefault(u => u.Email.ToLower() == loginDto.Email.ToLower() && u.IsActive);
+        //var users = await _unitOfWork.Users.GetAllAsync();
+        //var user = users.FirstOrDefault(u => u.Email.ToLower() == loginDto.Email.ToLower() && u.IsActive);
+        var user = (await _unitOfWork.Users.GetAsync(u => u.Email.ToLower() == loginDto.Email.ToLower() && u.IsActive)).FirstOrDefault();
 
         if (user == null)
         {
@@ -45,7 +45,7 @@ public class AuthService : IAuthService
         // Obtener roles del usuario
         var userRoles = await _unitOfWork.UserRoles.GetAllAsync();
         var roles = await _unitOfWork.Roles.GetAllAsync();
-        
+
         var userRoleIds = userRoles.Where(ur => ur.UserId == user.Id).Select(ur => ur.RoleId);
         var userRoleNames = roles.Where(r => userRoleIds.Contains(r.Id)).Select(r => r.Name).ToList();
 
@@ -55,14 +55,14 @@ public class AuthService : IAuthService
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
-            Phone = user.Phone ?? string.Empty,
-            Address = user.Address ?? string.Empty,
+            Phone = user.Phone  ,
+            Address = user.Address  ,
             Roles = userRoleNames,
             IsActive = user.IsActive
         };
 
-        var token = GenerateJwtToken(userAuthDto);
-        var expires = DateTime.UtcNow.AddHours(12); // Token válido por 12 horas
+        var expires = DateTime.UtcNow.AddHours(12); // Token válido por 12 horas 
+        var token = GenerateJwtToken(userAuthDto, expires);
 
         return new AuthResponseDto
         {
@@ -100,7 +100,7 @@ public class AuthService : IAuthService
         // Asignar rol de Usuario por defecto
         var roles = await _unitOfWork.Roles.GetAllAsync();
         var userRole = roles.FirstOrDefault(r => r.Name == "Usuario");
-        
+
         if (userRole != null)
         {
             var userRoleEntity = new UserRole
@@ -110,7 +110,7 @@ public class AuthService : IAuthService
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            
+
             await _unitOfWork.UserRoles.AddAsync(userRoleEntity);
             await _unitOfWork.CompleteAsync();
         }
@@ -127,9 +127,9 @@ public class AuthService : IAuthService
             Roles = userRole != null ? new List<string> { userRole.Name } : new List<string>(),
             IsActive = user.IsActive
         };
-
-        var token = GenerateJwtToken(userAuthDto);
         var expires = DateTime.UtcNow.AddHours(12);
+
+        var token = GenerateJwtToken(userAuthDto, expires);
 
         return new AuthResponseDto
         {
@@ -174,7 +174,7 @@ public class AuthService : IAuthService
         // Obtener roles del usuario
         var userRoles = await _unitOfWork.UserRoles.GetAllAsync();
         var roles = await _unitOfWork.Roles.GetAllAsync();
-        
+
         var userRoleIds = userRoles.Where(ur => ur.UserId == user.Id).Select(ur => ur.RoleId);
         var userRoleNames = roles.Where(r => userRoleIds.Contains(r.Id)).Select(r => r.Name).ToList();
 
@@ -197,7 +197,7 @@ public class AuthService : IAuthService
         return users.Any(u => u.Email.ToLower() == email.ToLower());
     }
 
-    public string GenerateJwtToken(UserAuthDto user)
+    public string GenerateJwtToken(UserAuthDto user, DateTime expires)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");
@@ -226,7 +226,7 @@ public class AuthService : IAuthService
             issuer: issuer,
             audience: audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(12),
+            expires: expires,
             signingCredentials: credentials
         );
 

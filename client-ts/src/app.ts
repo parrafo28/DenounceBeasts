@@ -263,6 +263,38 @@ class DenounceBeatsApp {
       const htmlElement = element as HTMLElement;
       htmlElement.style.display = authenticated ? 'block' : 'none';
     });
+
+    // Update permission-based elements
+    this.updatePermissionBasedUI();
+  }
+
+  /**
+   * Update UI elements based on user permissions
+   */
+  private updatePermissionBasedUI(): void {
+    if (!authService.isAuthenticated()) return;
+
+    // Hide/show navigation items based on permissions
+    const municipalitiesNav = document.getElementById('nav-municipalities');
+    if (municipalitiesNav) {
+      municipalitiesNav.style.display = authService.canManageMunicipalities() ? 'block' : 'none';
+    }
+
+    const sectorsNav = document.getElementById('nav-sectors');
+    if (sectorsNav) {
+      sectorsNav.style.display = authService.canManageSectors() ? 'block' : 'none';
+    }
+
+    // Hide/show add buttons based on permissions
+    const addMunicipalityBtn = document.getElementById('btn-add-municipality');
+    if (addMunicipalityBtn) {
+      addMunicipalityBtn.style.display = authService.canManageMunicipalities() ? 'inline-block' : 'none';
+    }
+
+    const addSectorBtn = document.getElementById('btn-add-sector');
+    if (addSectorBtn) {
+      addSectorBtn.style.display = authService.canManageSectors() ? 'inline-block' : 'none';
+    }
   }
 
   /**
@@ -446,6 +478,9 @@ class DenounceBeatsApp {
       this.populateSectorMunicipalityFilter();
     }
 
+    // Update permission-based UI after rendering
+    this.updatePermissionBasedUI();
+
     logger.debug('View changed', { view });
   }
 
@@ -474,14 +509,16 @@ class DenounceBeatsApp {
         <td>${formatDate(municipality.createdAt)}</td>
         <td>
           <div class="btn-group" role="group">
-            <button type="button" class="btn btn-sm btn-outline-primary" 
-                    onclick="app.editMunicipality(${municipality.id})">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger" 
-                    onclick="app.deleteMunicipality(${municipality.id})">
-              <i class="fas fa-trash"></i>
-            </button>
+            ${authService.canManageMunicipalities() ? `
+              <button type="button" class="btn btn-sm btn-outline-primary" 
+                      onclick="app.editMunicipality(${municipality.id})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" 
+                      onclick="app.deleteMunicipality(${municipality.id})">
+                <i class="fas fa-trash"></i>
+              </button>
+            ` : ''}
             <button type="button" class="btn btn-sm btn-outline-info" 
                     onclick="app.viewMunicipalitySectors(${municipality.id})">
               <i class="fas fa-map"></i>
@@ -531,14 +568,16 @@ class DenounceBeatsApp {
         <td>${formatDate(sector.createdAt)}</td>
         <td>
           <div class="btn-group" role="group">
-            <button type="button" class="btn btn-sm btn-outline-primary" 
-                    onclick="app.editSector(${sector.id})">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger" 
-                    onclick="app.deleteSector(${sector.id})">
-              <i class="fas fa-trash"></i>
-            </button>
+            ${authService.canManageSectors() ? `
+              <button type="button" class="btn btn-sm btn-outline-primary" 
+                      onclick="app.editSector(${sector.id})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" 
+                      onclick="app.deleteSector(${sector.id})">
+                <i class="fas fa-trash"></i>
+              </button>
+            ` : ''}
           </div>
         </td>
       </tr>
@@ -725,64 +764,99 @@ class DenounceBeatsApp {
   }
 
   /**
+   * Security wrapper to check permissions before executing actions
+   */
+  private checkPermission(permissionCheck: () => boolean, actionName: string, callback: () => void | Promise<void>): void {
+    if (permissionCheck()) {
+      callback();
+    } else {
+      this.showError(`No tienes permisos para ${actionName}. Solo usuarios con rol de administrador pueden realizar esta acción.`);
+    }
+  }
+
+  /**
    * Public methods for global access
    */
   editMunicipality(id: number): void {
-    const municipality = this.municipalities.find(m => m.id === id);
-    if (municipality) {
-      this.showMunicipalityModal(municipality);
-    }
+    this.checkPermission(
+      () => authService.canManageMunicipalities(),
+      'editar municipios',
+      () => {
+        const municipality = this.municipalities.find(m => m.id === id);
+        if (municipality) {
+          this.showMunicipalityModal(municipality);
+        }
+      }
+    );
   }
 
   async deleteMunicipality(id: number): Promise<void> {
-    if (!confirm('¿Está seguro de eliminar este municipio?')) {
-      return;
-    }
+    this.checkPermission(
+      () => authService.canManageMunicipalities(),
+      'eliminar municipios',
+      async () => {
+        if (!confirm('¿Está seguro de eliminar este municipio?')) {
+          return;
+        }
 
-    this.setLoading(true);
+        this.setLoading(true);
 
-    try {
-      const result = await services.municipality.delete(id);
-      
-      if (result.success) {
-        this.showSuccess(config.messages.success.deleted);
-        this.removeMunicipalityFromList(id);
-        this.renderMunicipalities();
-      } else {
-        this.showError(result.error.message);
+        try {
+          const result = await services.municipality.delete(id);
+          
+          if (result.success) {
+            this.showSuccess(config.messages.success.deleted);
+            this.removeMunicipalityFromList(id);
+            this.renderMunicipalities();
+          } else {
+            this.showError(result.error.message);
+          }
+        } finally {
+          this.setLoading(false);
+        }
       }
-    } finally {
-      this.setLoading(false);
-    }
+    );
   }
 
   editSector(id: number): void {
-    const sector = this.sectors.find(s => s.id === id);
-    if (sector) {
-      this.showSectorModal(sector);
-    }
+    this.checkPermission(
+      () => authService.canManageSectors(),
+      'editar sectores',
+      () => {
+        const sector = this.sectors.find(s => s.id === id);
+        if (sector) {
+          this.showSectorModal(sector);
+        }
+      }
+    );
   }
 
   async deleteSector(id: number): Promise<void> {
-    if (!confirm('¿Está seguro de eliminar este sector?')) {
-      return;
-    }
+    this.checkPermission(
+      () => authService.canManageSectors(),
+      'eliminar sectores',
+      async () => {
+        if (!confirm('¿Está seguro de eliminar este sector?')) {
+          return;
+        }
 
-    this.setLoading(true);
+        this.setLoading(true);
 
-    try {
-      const result = await services.sector.delete(id);
-      
-      if (result.success) {
-        this.showSuccess(config.messages.success.deleted);
-        this.removeSectorFromList(id);
-        this.renderSectors();
-      } else {
-        this.showError(result.error.message);
+        try {
+          const result = await services.sector.delete(id);
+          
+          if (result.success) {
+            this.showSuccess(config.messages.success.deleted);
+            this.removeSectorFromList(id);
+            this.renderSectors();
+          } else {
+            this.showError(result.error.message);
+          }
+        } finally {
+          this.setLoading(false);
+        }
       }
-    } finally {
-      this.setLoading(false);
-    }
+    );
   }
 
   viewMunicipalitySectors(municipalityId: number): void {

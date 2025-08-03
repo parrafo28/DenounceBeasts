@@ -261,14 +261,70 @@ export class AuthService {
    * Check if user is admin
    */
   public isAdmin(): boolean {
-    return this.hasRole('Administrador');
+    return this.hasRole('Admin');
   }
 
   /**
-   * Check if user is moderator or admin
+   * Check if user is staff
    */
-  public isModerator(): boolean {
-    return this.hasAnyRole(['Moderador', 'Administrador']);
+  public isStaff(): boolean {
+    return this.hasRole('Staff');
+  }
+
+  /**
+   * Check if user is regular user
+   */
+  public isUser(): boolean {
+    return this.hasRole('User');
+  }
+
+  /**
+   * Check if user is admin or staff
+   */
+  public isAdminOrStaff(): boolean {
+    return this.hasAnyRole(['Admin', 'Staff']);
+  }
+
+  /**
+   * Check if user can manage municipalities
+   */
+  public canManageMunicipalities(): boolean {
+    return this.isAdmin(); // Solo admins pueden gestionar municipios
+  }
+
+  /**
+   * Check if user can manage sectors
+   */
+  public canManageSectors(): boolean {
+    return this.isAdmin(); // Solo admins pueden gestionar sectores
+  }
+
+  /**
+   * Check if user can manage complaint types
+   */
+  public canManageComplaintTypes(): boolean {
+    return this.isAdmin(); // Solo admins pueden gestionar tipos de denuncia
+  }
+
+  /**
+   * Check if user can manage status
+   */
+  public canManageStatus(): boolean {
+    return this.isAdmin(); // Solo admins pueden gestionar estados
+  }
+
+  /**
+   * Check if user can view reports
+   */
+  public canViewReports(): boolean {
+    return this.isAdminOrStaff(); // Admins y staff pueden ver reportes
+  }
+
+  /**
+   * Check if user can moderate complaints
+   */
+  public canModerateComplaints(): boolean {
+    return this.isAdminOrStaff(); // Admins y staff pueden moderar denuncias
   }
 
   /**

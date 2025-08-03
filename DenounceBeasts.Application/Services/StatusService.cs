@@ -36,7 +36,7 @@ namespace DenounceBeasts.Application.Services
             status.IsActive = true;
             
             await _unitOfWork.Status.AddAsync(status);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<StatusDto>(status);
         }
@@ -50,8 +50,8 @@ namespace DenounceBeasts.Application.Services
             _mapper.Map(updateDto, status);
             status.UpdatedAt = DateTime.UtcNow;
             
-            _unitOfWork.Status.Update(status);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.Status.UpdateAsync(status);
+            await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<StatusDto>(status);
         }
@@ -64,9 +64,9 @@ namespace DenounceBeasts.Application.Services
 
             status.IsActive = false;
             status.UpdatedAt = DateTime.UtcNow;
-            
-            _unitOfWork.Status.Update(status);
-            await _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.Status.UpdateAsync(status);
+            await _unitOfWork.CompleteAsync();
             
             return true;
         }

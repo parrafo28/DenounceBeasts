@@ -12,7 +12,7 @@ namespace DenounceBeasts.Infrastructure.Contracts
         Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<T> GetByIdAsync(int id);
         Task<List<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> predicate = null);
-        void Update(T entity);
+ 
         Task UpdateAsync(T entity);
     }
 }

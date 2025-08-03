@@ -21,8 +21,7 @@ namespace DenounceBeasts.Infrastructure.Contracts
 
         Task CompleteAsync();
         Task BeginTransactionAsync();
-        Task CommitTransactionAsync();
-        Task<int> SaveChangesAsync();
+        Task CommitTransactionAsync(); 
         void Dispose();
         Task RollbackTransactionAsync();
     }
